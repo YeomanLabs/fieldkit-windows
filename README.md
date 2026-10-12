@@ -1,0 +1,89 @@
+# FieldKit for Windows
+
+Look up, fix and pre-stage devices in **Microsoft Intune, Entra ID and Autopilot**, from the PC you already work at.
+
+Type, scan or paste a serial number, or press **This PC**, and FieldKit shows the device's Intune, Entra and Autopilot records side by side, with problems flagged: not enrolled, stale, non-compliant, disabled in Entra, name mismatches, duplicate records and more. Then fix things on the spot.
+
+![A device with problems flagged](screenshots/device.png)
+
+## What it does
+
+- **Look up any device** by serial: Intune, compliance policies, Entra and Autopilot, each loading on its own. USB and Bluetooth barcode scanners work in every serial box.
+- **Search** devices, people and groups. Open a person to see their devices, or a group to see what Intune targets at it and who's in it.
+- **Groups and assignments**: which apps, profiles, policies, scripts and remediations reach a device (through its groups and its primary user's), including exclusions.
+- **Hardware, storage and apps**: storage, memory, TPM, battery health, network, Microsoft Defender status and every detected app.
+- **Act on it**: sync, restart, retire, run a remediation, show the LAPS password or BitLocker keys, and install an app by adding the device or its user to the app's Required group. Restart, retire, remediations and recovery secrets ask for **Windows Hello** first.
+- **Autopilot**: edit a device's group tag and assigned user, or tag box after box (or a pasted list) with **Pre-stage**.
+- **Site walks**: scan every device in a room or floor, see what needs attention, and export a CSV that opens cleanly in Excel.
+- **Demo mode**: try everything with sample data. Nothing connects to Microsoft.
+
+| | |
+|---|---|
+| ![Groups and assignments](screenshots/assignments.png) | ![Hardware, storage and apps](screenshots/inventory.png) |
+| ![Site walk](screenshots/site-walk.png) | ![Lookup](screenshots/lookup.png) |
+
+## Install
+
+Download the latest release from [Releases](../../releases): Windows 10 (2004 or later) or Windows 11, x64 or ARM64.
+
+- **MSI** (`FieldKit-<version>-x64.msi` or `-arm64.msi`): installs for everyone on the PC into `Program Files\FieldKit`, with a Start menu shortcut. Needs admin rights.
+- **Zip** (`FieldKit-<version>-x64.zip` or `-arm64.zip`): unzip anywhere and run `FieldKit.exe`. No install or admin rights needed.
+
+Everything FieldKit needs (.NET and the Windows App SDK) is included.
+
+FieldKit isn't code-signed yet, so the first time you run a downloaded copy Windows SmartScreen may say it "protected your PC". Select **More info → Run anyway**. You can check a download against `SHA256SUMS.txt` in the release:
+
+```powershell
+Get-FileHash .\FieldKit-1.0.0-x64.msi -Algorithm SHA256
+```
+
+### Deploy with Intune
+
+Add the MSI as a **Line-of-business app**, or wrap it as a **Win32 app** with:
+
+- Install: `msiexec /i FieldKit-1.0.0-x64.msi /qn`
+- Uninstall: `msiexec /x FieldKit-1.0.0-x64.msi /qn` (or by product code)
+- Detection: MSI product code, or the file `%ProgramFiles%\FieldKit\FieldKit.exe` at version 1.0.0 or later.
+
+New versions upgrade in place.
+
+## Set up (once per tenant)
+
+FieldKit signs in with each engineer's own work account and can only do what their Intune and Entra roles allow. An Entra admin registers it once, about 10 minutes:
+
+1. **Entra admin center → App registrations → New registration.** Name it "FieldKit", single tenant, no redirect URI yet. (Already registered FieldKit for iPhone? Use the same registration and skip to step 2.)
+2. **Authentication → Add a platform → Mobile and desktop applications**, and add this redirect URI with your Application (client) ID:
+   `ms-appx-web://microsoft.aad.brokerplugin/<client ID>`
+3. **API permissions → Microsoft Graph → Delegated**, add these, then **Grant admin consent**:
+
+   | Permission | For |
+   |---|---|
+   | User.Read | Sign-in and profile |
+   | User.Read.All | Search people |
+   | DeviceManagementManagedDevices.Read.All | Intune devices |
+   | DeviceManagementConfiguration.Read.All | Compliance policy details |
+   | Device.Read.All | Entra devices |
+   | DeviceManagementServiceConfig.ReadWrite.All | Autopilot lookup and pre-staging |
+   | DeviceManagementManagedDevices.PrivilegedOperations.All | Sync, restart, retire, run remediations |
+   | DeviceLocalCredential.Read.All | LAPS passwords |
+   | BitlockerKey.Read.All | BitLocker recovery keys |
+   | GroupMember.Read.All | Groups and memberships |
+   | DeviceManagementApps.Read.All | App assignments |
+   | DeviceManagementScripts.Read.All | Scripts and remediations |
+   | GroupMember.ReadWrite.All | Install apps, add and remove group members |
+
+4. Open FieldKit, enter the **Directory (tenant) ID** and **Application (client) ID** from the registration's Overview page, and sign in. FieldKit's setup screen shows these steps too, and can copy them for an admin.
+
+FieldKit is a public client: no client secret or certificate. It signs in through the Windows account broker, so on an Entra-joined PC it usually signs in without a prompt, and Conditional Access "require compliant device" works on Intune-managed PCs.
+
+## Privacy
+
+FieldKit collects nothing. It talks only to Microsoft sign-in and Microsoft Graph, as you. Sign-in tokens stay with Windows. On the PC it keeps your tenant setup, settings, recent lookups and site walks in `%LOCALAPPDATA%\FieldKit`; **Settings → Clear all local data** removes them.
+
+LAPS passwords and BitLocker keys are shown only after Windows Hello, masked until you select Show, hidden when FieldKit loses focus, kept out of screenshots and screen sharing while shown, and closed after two minutes. Copying one keeps it out of clipboard history and cloud clipboard, and clears it after 60 seconds.
+
+## Help
+
+Questions and problems: [open an issue](../../issues).
+
+FieldKit is made by YeomanLabs.
