@@ -2,14 +2,14 @@
 
 Look up, fix and pre-stage devices in **Microsoft Intune, Entra ID and Autopilot**, from the PC you already work at.
 
-Type, scan or paste a serial number, or press **This PC**, and FieldKit shows the device's Intune, Entra and Autopilot records side by side, with problems flagged: not enrolled, stale, non-compliant, disabled in Entra, name mismatches, duplicate records and more. Then fix things on the spot.
+Open it and your Intune devices are already listed, A–Z. Type to filter, scan or paste a serial number, or press **This PC**, and FieldKit shows the device's Intune, Entra and Autopilot records side by side, with problems flagged: not enrolled, stale, non-compliant, disabled in Entra, name mismatches, duplicate records and more. Then fix things on the spot.
 
 ![A device with problems flagged](screenshots/device.png)
 
 ## What it does
 
 - **Look up any device** by serial: Intune, compliance policies, Entra and Autopilot, each loading on its own. USB and Bluetooth barcode scanners work in every serial box.
-- **Search** devices, people and groups. Open a person to see their devices, or a group to see what Intune targets at it and who's in it.
+- **Devices, Users and Groups** tabs list your whole tenant A–Z as soon as they open and filter as you type. Open a person to see their devices, or a group to see what Intune targets at it and who's in it.
 - **Groups and assignments**: which apps, profiles, policies, scripts and remediations reach a device (through its groups and its primary user's), including exclusions.
 - **Hardware, storage and apps**: storage, memory, TPM, battery health, network, Microsoft Defender status and every detected app.
 - **Act on it**: sync, restart, retire, run a remediation, show the LAPS password or BitLocker keys, and install an app by adding the device or its user to the app's Required group. Restart, retire, remediations and recovery secrets ask for **Windows Hello** first.
@@ -20,7 +20,7 @@ Type, scan or paste a serial number, or press **This PC**, and FieldKit shows th
 | | |
 |---|---|
 | ![Groups and assignments](screenshots/assignments.png) | ![Hardware, storage and apps](screenshots/inventory.png) |
-| ![Site walk](screenshots/site-walk.png) | ![Lookup](screenshots/lookup.png) |
+| ![Site walk](screenshots/site-walk.png) | ![Devices](screenshots/devices.png) |
 
 ## Install
 
@@ -59,7 +59,7 @@ FieldKit signs in with each engineer's own work account and can only do what the
    | Permission | For |
    |---|---|
    | User.Read | Sign-in and profile |
-   | User.Read.All | Search people |
+   | User.Read.All | List and search people |
    | DeviceManagementManagedDevices.Read.All | Intune devices |
    | DeviceManagementConfiguration.Read.All | Compliance policy details |
    | Device.Read.All | Entra devices |
