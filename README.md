@@ -14,6 +14,7 @@ Open it and your Intune devices are already listed, A–Z. Type to filter, scan 
 - **Hardware, storage and apps**: storage, memory, TPM, battery health, network, Microsoft Defender status and every detected app.
 - **Act on it**: sync, restart, retire, run a remediation, show the LAPS password or BitLocker keys, and install an app by adding the device or its user to the app's Required group. Restart, retire, remediations and recovery secrets ask for **Windows Hello** first.
 - **Autopilot**: edit a device's group tag and assigned user, or tag box after box (or a pasted list) with **Pre-stage**.
+- **Extension attributes**: see and edit a device's Entra extensionAttribute1–15, the ones dynamic groups and assignment filters use.
 - **Site walks**: scan every device in a room or floor, see what needs attention, and export a CSV that opens cleanly in Excel.
 - **Demo mode**: try everything with sample data. Nothing connects to Microsoft.
 
@@ -71,6 +72,9 @@ FieldKit signs in with each engineer's own work account and can only do what the
    | DeviceManagementApps.Read.All | App assignments |
    | DeviceManagementScripts.Read.All | Scripts and remediations |
    | GroupMember.ReadWrite.All | Install apps, add and remove group members |
+   | Directory.AccessAsUser.All | *Optional:* edit device extension attributes |
+
+   Directory.AccessAsUser.All is only needed to edit extension attributes, and is the only permission Microsoft offers for changing a device as a signed-in user. It lets FieldKit do what your own Entra role allows, so leave it out if you don't need that feature. Editing also needs the Intune Administrator role.
 
 4. Open FieldKit, enter the **Directory (tenant) ID** and **Application (client) ID** from the registration's Overview page, and sign in. FieldKit's setup screen shows these steps too, and can copy them for an admin.
 
