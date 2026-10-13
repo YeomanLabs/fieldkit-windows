@@ -91,3 +91,7 @@ LAPS passwords and BitLocker keys are shown only after Windows Hello, masked unt
 Questions and problems: [open an issue](../../issues).
 
 FieldKit is made by YeomanLabs.
+
+## License
+
+[MIT](LICENSE). Free to use, copy and redistribute, including inside your organization. It comes as is, with no warranty.
