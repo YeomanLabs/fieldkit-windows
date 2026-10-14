@@ -80,7 +80,35 @@ FieldKit signs in with each engineer's own work account and can only do what the
 
    Directory.AccessAsUser.All is only needed to edit extension attributes, and is the only permission Microsoft offers for changing a device as a signed-in user. It lets FieldKit do what your own Entra role allows, so leave it out if you don't need that feature. Editing also needs the Intune Administrator role.
 
+   **Upgrading?** These versions added permissions. Add them, grant admin consent, then in FieldKit open **Settings → Permissions → Refresh sign-in** (consent can take a minute or two to reach new sign-ins):
+
+   | Version | Added | For |
+   |---|---|---|
+   | 1.3.0 | AuditLog.Read.All, Policy.Read.ConditionalAccess | Why was I blocked? (sign-in logs and the Conditional Access policies in them) |
+   | 1.2.0 | Directory.AccessAsUser.All *(optional)* | Editing device extension attributes |
+
+   Until a permission is added, only the feature that needs it is affected; it says which permission and role it's missing. **Settings → Permissions** shows what the current sign-in has.
+
 4. Open FieldKit, enter the **Directory (tenant) ID** and **Application (client) ID** from the registration's Overview page, and sign in. FieldKit's setup screen shows these steps too, and can copy them for an admin.
+
+### Roles your engineers need
+
+The permissions above say what FieldKit may ask for; each engineer's own roles decide what they actually get. Intune roles can be scoped with scope tags as usual.
+
+| Feature | Role (or a custom role with the same rights) |
+|---|---|
+| Look up devices, compliance, groups and assignments | Any Intune role that can read devices, policies and apps, such as Read Only Operator |
+| Sync, restart, retire | Intune role with remote tasks, such as Help Desk Operator |
+| Run a remediation | Intune role that can run remediations, plus Windows licences that include Remediations |
+| Autopilot group tag and user, Pre-stage | Intune role that can update Autopilot devices, such as Policy and Profile Manager |
+| Show LAPS password | Entra role that can read LAPS passwords, such as Cloud Device Administrator |
+| Show BitLocker keys | Entra role that can read BitLocker keys, such as Cloud Device Administrator or Helpdesk Administrator |
+| Install apps, add and remove group members | Groups Administrator or Intune Administrator, or owner of the group |
+| Edit extension attributes | Intune Administrator |
+| Why was I blocked? (sign-in logs) | Reports Reader, Security Reader or Global Reader. Sign-in logs also need **Microsoft Entra ID P1 or P2** |
+| …and which Conditional Access policy blocked it | Global Reader, Security Reader or Conditional Access Administrator (without one, sign-ins still show, but not the policies) |
+
+LAPS, BitLocker, restart, retire and remediations also ask for **Windows Hello** on the PC first.
 
 FieldKit is a public client: no client secret or certificate. It signs in through the Windows account broker, so on an Entra-joined PC it usually signs in without a prompt, and Conditional Access "require compliant device" works on Intune-managed PCs.
 
