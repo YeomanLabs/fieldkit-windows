@@ -15,6 +15,7 @@ Open it and your Intune devices are already listed, A–Z. Type to filter, scan 
 - **Act on it**: sync, restart, retire, run a remediation, show the LAPS password or BitLocker keys, and install an app by adding the device or its user to the app's Required group. Restart, retire, remediations and recovery secrets ask for **Windows Hello** first.
 - **Autopilot**: edit a device's group tag and assigned user, or tag box after box (or a pasted list) with **Pre-stage**.
 - **Extension attributes**: see and edit a device's Entra extensionAttribute1–15, the ones dynamic groups and assignment filters use.
+- **Why was I blocked?** A person's sign-ins from the last 7 days, problems first. Open one for a plain-English reason, what to check, which Conditional Access policy blocked it, and the device, one click from its FieldKit page.
 - **Site walks**: scan every device in a room or floor, see what needs attention, and export a CSV that opens cleanly in Excel.
 - **Demo mode**: try everything with sample data. Nothing connects to Microsoft.
 
@@ -22,6 +23,7 @@ Open it and your Intune devices are already listed, A–Z. Type to filter, scan 
 |---|---|
 | ![Groups and assignments](screenshots/assignments.png) | ![Hardware, storage and apps](screenshots/inventory.png) |
 | ![Site walk](screenshots/site-walk.png) | ![Devices](screenshots/devices.png) |
+| ![A person's sign-ins, problems first](screenshots/person.png) | ![Why was I blocked?](screenshots/sign-in.png) |
 
 ## Install
 
@@ -71,6 +73,8 @@ FieldKit signs in with each engineer's own work account and can only do what the
    | GroupMember.Read.All | Groups and memberships |
    | DeviceManagementApps.Read.All | App assignments |
    | DeviceManagementScripts.Read.All | Scripts and remediations |
+   | AuditLog.Read.All | Sign-in logs: why was I blocked? |
+   | Policy.Read.ConditionalAccess | Which Conditional Access policies applied to a sign-in |
    | GroupMember.ReadWrite.All | Install apps, add and remove group members |
    | Directory.AccessAsUser.All | *Optional:* edit device extension attributes |
 
