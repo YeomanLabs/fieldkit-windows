@@ -12,6 +12,7 @@ Open it and your Intune devices are already listed, A–Z. Type to filter, scan 
 - **Devices, Users and Groups** tabs list your whole tenant A–Z as soon as they open and filter as you type. Open a person to see their devices, or a group to see what Intune targets at it and who's in it.
 - **Groups and assignments**: which apps, profiles, policies, scripts and remediations reach a device (through its groups and its primary user's), including exclusions.
 - **Hardware, storage and apps**: storage, memory, TPM, battery health, network, Microsoft Defender status and every detected app.
+- **Install status**: did it actually install? Every app Intune targets at the device or its user, failed ones first with the error code and what it means, plus how each configuration profile and policy applied, errors and conflicts first.
 - **Act on it**: sync, restart, retire, run a remediation, show the LAPS password or BitLocker keys, and install an app by adding the device or its user to the app's Required group. Restart, retire, remediations and recovery secrets ask for **Windows Hello** first.
 - **Autopilot**: edit a device's group tag and assigned user, or tag box after box (or a pasted list) with **Pre-stage**.
 - **Extension attributes**: see and edit a device's Entra extensionAttribute1–15, the ones dynamic groups and assignment filters use.
@@ -24,6 +25,7 @@ Open it and your Intune devices are already listed, A–Z. Type to filter, scan 
 | ![Groups and assignments](screenshots/assignments.png) | ![Hardware, storage and apps](screenshots/inventory.png) |
 | ![Site walk](screenshots/site-walk.png) | ![Devices](screenshots/devices.png) |
 | ![A person's sign-ins, problems first](screenshots/person.png) | ![Why was I blocked?](screenshots/sign-in.png) |
+| ![Install status: failed apps first, with the error code](screenshots/install-status.png) | |
 
 ## Install
 
@@ -64,14 +66,14 @@ FieldKit signs in with each engineer's own work account and can only do what the
    | User.Read | Sign-in and profile |
    | User.Read.All | List and search people |
    | DeviceManagementManagedDevices.Read.All | Intune devices |
-   | DeviceManagementConfiguration.Read.All | Compliance policy details |
+   | DeviceManagementConfiguration.Read.All | Compliance policy details, configuration status |
    | Device.Read.All | Entra devices |
    | DeviceManagementServiceConfig.ReadWrite.All | Autopilot lookup and pre-staging |
    | DeviceManagementManagedDevices.PrivilegedOperations.All | Sync, restart, retire, run remediations |
    | DeviceLocalCredential.Read.All | LAPS passwords |
    | BitlockerKey.Read.All | BitLocker recovery keys |
    | GroupMember.Read.All | Groups and memberships |
-   | DeviceManagementApps.Read.All | App assignments |
+   | DeviceManagementApps.Read.All | App assignments and install status |
    | DeviceManagementScripts.Read.All | Scripts and remediations |
    | AuditLog.Read.All | Sign-in logs: why was I blocked? |
    | Policy.Read.ConditionalAccess | Which Conditional Access policies applied to a sign-in |
@@ -87,6 +89,8 @@ FieldKit signs in with each engineer's own work account and can only do what the
    | 1.3.0 | AuditLog.Read.All, Policy.Read.ConditionalAccess | Why was I blocked? (sign-in logs and the Conditional Access policies in them) |
    | 1.2.0 | Directory.AccessAsUser.All *(optional)* | Editing device extension attributes |
 
+   Other versions, including 1.4.0's install status, use permissions FieldKit already had.
+
    Until a permission is added, only the feature that needs it is affected; it says which permission and role it's missing. **Settings → Permissions** shows what the current sign-in has.
 
 4. Open FieldKit, enter the **Directory (tenant) ID** and **Application (client) ID** from the registration's Overview page, and sign in. FieldKit's setup screen shows these steps too, and can copy them for an admin.
@@ -97,7 +101,7 @@ The permissions above say what FieldKit may ask for; each engineer's own roles d
 
 | Feature | Role (or a custom role with the same rights) |
 |---|---|
-| Look up devices, compliance, groups and assignments | Any Intune role that can read devices, policies and apps, such as Read Only Operator |
+| Look up devices, compliance, groups, assignments and install status | Any Intune role that can read devices, policies and apps, such as Read Only Operator |
 | Sync, restart, retire | Intune role with remote tasks, such as Help Desk Operator |
 | Run a remediation | Intune role that can run remediations, plus Windows licences that include Remediations |
 | Autopilot group tag and user, Pre-stage | Intune role that can update Autopilot devices, such as Policy and Profile Manager |
