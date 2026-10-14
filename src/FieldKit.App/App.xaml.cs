@@ -33,7 +33,7 @@ public partial class App : Application
             Session = session,
             DeviceInfo = new WindowsDeviceInfo(),
             DataFolder = Path.GetDirectoryName(DatabasePath())!,
-            Version = AppVersion(),
+            Version = AppChannel.Version,
             OwnerVerifier = new WindowsHelloVerifier(() => window?.Handle ?? IntPtr.Zero),
             Clipboard = new SecureClipboard(Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread()),
         };
@@ -50,7 +50,11 @@ public partial class App : Application
         await session.RestoreAsync();
     }
 
-    /// <summary>Per user, in %LOCALAPPDATA%\FieldKit. Uninstalling leaves it; "Clear all local data" empties it.</summary>
+    /// <summary>
+    /// Per user, in %LOCALAPPDATA%\FieldKit (a test build: %LOCALAPPDATA%\FieldKit Test, so it never
+    /// touches the public app's setup, recents or site walks). Uninstalling leaves it; "Clear all
+    /// local data" empties it.
+    /// </summary>
     private static string DatabasePath()
     {
 #if DEBUG
@@ -58,8 +62,6 @@ public partial class App : Application
         // in demo mode leaves the installed app's recents and site walks alone.
         if (Environment.GetEnvironmentVariable("FIELDKIT_DATA_FOLDER") is { Length: > 0 } folder) return Path.Combine(folder, "fieldkit.db");
 #endif
-        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FieldKit", "fieldkit.db");
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppChannel.Name, "fieldkit.db");
     }
-
-    private static string AppVersion() => typeof(App).Assembly.GetName().Version?.ToString(3) ?? "?";
 }

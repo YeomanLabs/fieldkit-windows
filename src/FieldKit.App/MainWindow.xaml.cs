@@ -24,6 +24,8 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        // Taskbar and Alt+Tab say which one this is when a test build runs beside the public app.
+        Title = AppChannel.Name;
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
@@ -53,7 +55,12 @@ public sealed partial class MainWindow : Window
 
     private void ShowState()
     {
-        AppTitleBar.Subtitle = _session.IsDemo ? "Demo data" : "";
+        // "Test build 1.5.0-test.1 · Demo data": a test build always says so, next to demo mode.
+        AppTitleBar.Subtitle = string.Join(" · ", new[]
+        {
+            AppChannel.IsTest ? $"Test build {AppChannel.Version}" : "",
+            _session.IsDemo ? "Demo data" : "",
+        }.Where(part => part.Length > 0));
         if (_session.State == SessionState.SignedIn)
         {
             if (_shell is not null && ReferenceEquals(Root.Content, _shell)) return;

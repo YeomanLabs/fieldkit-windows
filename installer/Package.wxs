@@ -2,18 +2,60 @@
   FieldKit for Windows. Silent install for Intune or scripts:
     msiexec /i FieldKit-<version>-x64.msi /qn
   Upgrades in place (same UpgradeCode); uninstall leaves each user's %LOCALAPPDATA%\FieldKit.
+
+  A test build (Channel=Test, Build-Release.ps1 -Test) is a separate product, "FieldKit Test", with
+  its own UpgradeCode, folder, shortcut and exe name, so it installs beside the public app. Any test
+  build replaces any other, older or newer, so the one under test is always the one installed.
 -->
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <?if $(Channel) = "Test" ?>
+  <?define ProductName = "FieldKit Test" ?>
+  <?define ProductUpgradeCode = "6AD50307-1E57-48AE-ADA0-EE8E1465DE94" ?>
+  <?define ExeName = "FieldKitTest.exe" ?>
+  <?else?>
+  <?define ProductName = "FieldKit" ?>
+  <?define ProductUpgradeCode = "5E0F6C1A-3B2D-4C8E-9A71-6D4B2F8E1C93" ?>
+  <?define ExeName = "FieldKit.exe" ?>
+  <?endif?>
+
   <Package
-    Name="FieldKit"
+    Name="$(ProductName)"
     Manufacturer="YeomanLabs"
     Version="$(Version)"
-    UpgradeCode="5E0F6C1A-3B2D-4C8E-9A71-6D4B2F8E1C93"
+    UpgradeCode="$(ProductUpgradeCode)"
     Scope="perMachine"
     Compressed="yes">
 
+    <?if $(Channel) = "Test" ?>
+    <MajorUpgrade AllowDowngrades="yes" />
+    <?else?>
     <MajorUpgrade DowngradeErrorMessage="A newer version of FieldKit is already installed." />
+    <?endif?>
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <!--
+      A running FieldKit holds its files, so an upgrade or uninstall used to stall on Windows
+      Installer's "files in use" prompt until it was closed (the user's report, 2026-10-14).
+      - First, ask it to close, as its close button would (util:CloseApplication). WiX schedules that
+        before InstallFiles, which is after the files-in-use check and the old version's removal, so
+        it's moved to just before InstallValidate. It only sends the close message: WiX's force-close
+        is a deferred action, which can't be scheduled that early.
+      - If it's still running (hung, or there's no desktop to ask because Intune installs as SYSTEM),
+        Restart Manager closes it: MSIRMSHUTDOWN=1 forces apps holding files in use to shut down
+        instead of leaving the files for a reboot.
+      Nothing is lost: settings, recents and site walks are saved as they change, and LAPS passwords
+      and BitLocker keys are never kept. Only this product's exe is closed, never the other channel's.
+    -->
+    <util:CloseApplication
+      Id="CloseRunningApp"
+      Target="$(ExeName)"
+      Description="Closing $(ProductName) so it can be updated."
+      CloseMessage="yes"
+      RebootPrompt="no" />
+    <InstallExecuteSequence>
+      <Custom Action="override Wix4CloseApplications_$(sys.BUILDARCHSHORT)" Before="InstallValidate" Condition="VersionNT &gt; 400" />
+    </InstallExecuteSequence>
+    <Property Id="MSIRMSHUTDOWN" Value="1" />
 
     <Icon Id="AppIcon.ico" SourceFile="$(IconPath)" />
     <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
@@ -24,8 +66,8 @@
     <Property Id="ARPNOREPAIR" Value="1" />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="FieldKit">
-        <!-- The whole self-contained publish folder: FieldKit.exe, .NET and the Windows App SDK. -->
+      <Directory Id="INSTALLFOLDER" Name="$(ProductName)">
+        <!-- The whole self-contained publish folder: the exe, .NET and the Windows App SDK. -->
         <Files Include="$(PublishDir)**" />
       </Directory>
     </StandardDirectory>
@@ -34,12 +76,12 @@
       <Component Id="StartMenuShortcut">
         <Shortcut
           Id="FieldKitShortcut"
-          Name="FieldKit"
+          Name="$(ProductName)"
           Description="Look up, fix and pre-stage devices in Intune, Entra and Autopilot"
-          Target="[INSTALLFOLDER]FieldKit.exe"
+          Target="[INSTALLFOLDER]$(ExeName)"
           WorkingDirectory="INSTALLFOLDER"
           Icon="AppIcon.ico" />
-        <RegistryValue Root="HKLM" Key="Software\YeomanLabs\FieldKit" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+        <RegistryValue Root="HKLM" Key="Software\YeomanLabs\$(ProductName)" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
       </Component>
     </StandardDirectory>
   </Package>

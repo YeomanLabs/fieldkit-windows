@@ -32,7 +32,7 @@ internal sealed class MsalAuthProvider : IAuthProvider
             _application = PublicClientApplicationBuilder.Create(config.ClientId)
                 .WithAuthority(config.AuthorityUrl.AbsoluteUri)
                 .WithRedirectUri($"ms-appx-web://microsoft.aad.brokerplugin/{config.ClientId}")
-                .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "FieldKit" })
+                .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = AppChannel.Name })
                 .WithParentActivityOrWindow(parentWindow)
                 .Build();
         }

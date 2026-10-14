@@ -16,5 +16,8 @@
     <!-- xUnit v3 without Microsoft Testing Platform: runs through VSTest, so `dotnet test <path>` works from any folder. -->
     <PackageVersion Include="xunit.v3.mtp-off" Version="4.0.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />
+    <!-- Installer: WiX's utility extension, from the same 5.0.2 release as WixToolset.Sdk, so the MSI can
+         close a running FieldKit before it upgrades it (the user's request, 2026-10-14). -->
+    <PackageVersion Include="WixToolset.Util.wixext" Version="5.0.2" />
   </ItemGroup>
 </Project>

@@ -50,7 +50,7 @@ Add the MSI as a **Line-of-business app**, or wrap it as a **Win32 app** with:
 - Uninstall: `msiexec /x FieldKit-1.0.0-x64.msi /qn` (or by product code)
 - Detection: MSI product code, or the file `%ProgramFiles%\FieldKit\FieldKit.exe` at version 1.0.0 or later.
 
-New versions upgrade in place.
+New versions upgrade in place. If FieldKit is open, the installer closes it first (from 1.4.3), so an upgrade doesn't wait on a running copy.
 
 ## Set up (once per tenant)
 
