@@ -1,0 +1,20 @@
+{
+  "value": [
+    {
+      "@odata.type": "#microsoft.graph.deviceCompliancePolicyState",
+      "id": "p-1",
+      "displayName": "Windows baseline",
+      "version": 7,
+      "platformType": "windows10AndLater",
+      "state": "nonCompliant",
+      "settingCount": 3,
+      "settingStates": [
+        { "@odata.type": "microsoft.graph.deviceCompliancePolicySettingState", "setting": "Windows10CompliancePolicy.bitLockerEnabled", "settingName": null, "instanceDisplayName": null, "state": "nonCompliant", "errorCode": 0, "errorDescription": "", "currentValue": "False" },
+        { "@odata.type": "microsoft.graph.deviceCompliancePolicySettingState", "setting": "Windows10CompliancePolicy.osMinimumVersion", "settingName": "Minimum OS version", "state": "error", "errorCode": 2016345612, "errorDescription": "Couldn't evaluate", "currentValue": null },
+        { "@odata.type": "microsoft.graph.deviceCompliancePolicySettingState", "setting": "Windows10CompliancePolicy.passwordRequired", "settingName": "Require password", "state": "compliant", "errorCode": 0, "currentValue": "True" }
+      ]
+    },
+    { "id": "p-2", "displayName": "Antivirus", "state": "compliant", "settingStates": [] },
+    { "id": "p-3", "displayName": "macOS baseline", "state": "notApplicable" }
+  ]
+}

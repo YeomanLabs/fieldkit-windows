@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="FieldKit.App.Views.SetupPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:FieldKit.App.Controls"
+    xmlns:local="using:FieldKit.App.Views"
+    xmlns:setup="using:FieldKit.Core.Setup"
+    Background="Transparent">
+
+    <ScrollViewer>
+        <StackPanel MaxWidth="820" Padding="{StaticResource PagePadding}" Spacing="20">
+            <StackPanel Spacing="8">
+                <TextBlock AutomationProperties.HeadingLevel="Level1" Style="{StaticResource PageTitleStyle}" Text="Set up FieldKit" />
+                <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="FieldKit looks up and manages devices in Intune, Entra and Autopilot in your Microsoft tenant. An Entra admin registers it once (about 10 minutes); then each engineer signs in with their own work account and can only do what their own roles allow." />
+            </StackPanel>
+
+            <!-- Demo -->
+            <Border Style="{StaticResource CardStyle}">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="4">
+                        <TextBlock Style="{StaticResource CardHeaderStyle}" Text="Just looking?" />
+                        <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="Explore every feature with sample devices, people and groups. Nothing connects to Microsoft or changes anything." />
+                    </StackPanel>
+                    <Button
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        AutomationProperties.Name="Try with demo data"
+                        Command="{x:Bind ViewModel.StartDemoCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon AutomationProperties.AccessibilityView="Raw" FontSize="16" Glyph="&#xE768;" />
+                            <TextBlock Text="Try with demo data" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- The IDs -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock AutomationProperties.HeadingLevel="Level2" Style="{StaticResource CardHeaderStyle}" Text="Your tenant" />
+                    <TextBox
+                        x:Name="TenantBox"
+                        AutomationProperties.Name="Directory (tenant) ID"
+                        FontFamily="{StaticResource MonospaceFont}"
+                        IsSpellCheckEnabled="False"
+                        PlaceholderText="GUID or contoso.onmicrosoft.com"
+                        Text="{x:Bind ViewModel.TenantId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.Header>
+                            <TextBlock Style="{StaticResource FieldHeaderStyle}" Text="Directory (tenant) ID" />
+                        </TextBox.Header>
+                    </TextBox>
+                    <TextBox
+                        AutomationProperties.Name="Application (client) ID"
+                        FontFamily="{StaticResource MonospaceFont}"
+                        IsSpellCheckEnabled="False"
+                        PlaceholderText="GUID"
+                        Text="{x:Bind ViewModel.ClientId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.Header>
+                            <TextBlock Style="{StaticResource FieldHeaderStyle}" Text="Application (client) ID" />
+                        </TextBox.Header>
+                    </TextBox>
+                    <controls:ToneText
+                        Text="{x:Bind ViewModel.Message, Mode=OneWay}"
+                        Tone="Critical"
+                        Visibility="{x:Bind local:Ui.Visible(ViewModel.HasMessage), Mode=OneWay}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Command="{x:Bind ViewModel.SaveCommand}" Content="Save and continue" Style="{StaticResource AccentButtonStyle}" />
+                        <Button Command="{x:Bind ViewModel.CancelCommand}" Content="Cancel" Visibility="{x:Bind local:Ui.Visible(ViewModel.CanCancel)}" />
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource CaptionSecondaryStyle}" Text="Both are on the app registration's Overview page. They're saved on this PC and identify your tenant; they aren't passwords. Don't have them yet? Follow the steps below." />
+                </StackPanel>
+            </Border>
+
+            <!-- How to get them -->
+            <StackPanel Spacing="12">
+                <TextBlock AutomationProperties.HeadingLevel="Level2" Style="{StaticResource SubtitleTextBlockStyle}" Text="Register FieldKit in Entra" />
+                <InfoBar
+                    IsClosable="False"
+                    IsOpen="True"
+                    Message="{x:Bind ViewModel.ExistingRegistrationNote}"
+                    Severity="Informational" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <HyperlinkButton Content="Open Entra admin center" NavigateUri="{x:Bind ViewModel.AdminCenterUrl}" />
+                    <Button x:Name="CopyStepsButton" AutomationProperties.Name="Copy the steps for an Entra admin" Click="CopySteps_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon x:Name="CopyStepsIcon" AutomationProperties.AccessibilityView="Raw" FontSize="16" Glyph="&#xE8C8;" />
+                            <TextBlock x:Name="CopyStepsText" Text="Copy the steps for an Entra admin" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.Guide.Steps, Mode=OneWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="setup:SetupStep">
+                            <Border Margin="0,0,0,12" Style="{StaticResource CardStyle}">
+                                <StackPanel Spacing="10">
+                                    <TextBlock AutomationProperties.HeadingLevel="Level3" Style="{StaticResource CardHeaderStyle}" Text="{x:Bind local:Ui.StepTitle(Number, Title)}" />
+                                    <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind Detail}" TextWrapping="Wrap" />
+                                    <ItemsControl IsTabStop="False" ItemsSource="{x:Bind Items}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="setup:SetupItem">
+                                                <controls:CopyableValue Margin="0,0,0,6" Label="{x:Bind Label}" Value="{x:Bind Value}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <!-- Good to know -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock AutomationProperties.HeadingLevel="Level2" Style="{StaticResource CardHeaderStyle}" Text="Good to know" />
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <FontIcon VerticalAlignment="Top" AutomationProperties.AccessibilityView="Raw" Glyph="&#xE72E;" />
+                        <TextBlock Grid.Column="1" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.NoSecretNote}" TextWrapping="Wrap" />
+                    </Grid>
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <FontIcon VerticalAlignment="Top" AutomationProperties.AccessibilityView="Raw" Glyph="&#xEA18;" />
+                        <TextBlock Grid.Column="1" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.ConditionalAccessNote}" TextWrapping="Wrap" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

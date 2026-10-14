@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Serial box for continuous scanning (pre-stage, site walks): a USB or Bluetooth scanner types
+    the serial and presses Enter; the box clears and keeps focus for the next one.
+-->
+<UserControl
+    x:Class="FieldKit.App.Controls.SerialEntryBox"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    IsTabStop="False">
+
+    <StackPanel Spacing="6">
+        <Grid ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox
+                x:Name="Box"
+                CharacterCasing="Upper"
+                FontFamily="{StaticResource MonospaceFont}"
+                FontSize="18"
+                IsSpellCheckEnabled="False"
+                IsTextPredictionEnabled="False"
+                KeyDown="Box_KeyDown"
+                PlaceholderText="Scan or type a serial, then Enter"
+                TextChanged="Box_TextChanged">
+                <TextBox.Header>
+                    <TextBlock x:Name="HeaderText" Style="{StaticResource FieldHeaderStyle}" Text="Serial number" />
+                </TextBox.Header>
+            </TextBox>
+            <Button
+                x:Name="SubmitButton"
+                Grid.Column="1"
+                MinHeight="36"
+                VerticalAlignment="Bottom"
+                Click="Submit_Click"
+                Content="Add"
+                Style="{StaticResource AccentButtonStyle}" />
+            <Button
+                Grid.Column="2"
+                MinHeight="36"
+                VerticalAlignment="Bottom"
+                AutomationProperties.Name="Paste a list of serials"
+                Click="PasteList_Click"
+                ToolTipService.ToolTip="Paste a list: one per line, or separated by commas or tabs (a column copied from Excel works)">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon AutomationProperties.AccessibilityView="Raw" FontSize="16" Glyph="&#xE77F;" />
+                    <TextBlock Text="Paste a list…" />
+                </StackPanel>
+            </Button>
+        </Grid>
+        <TextBlock
+            x:Name="ErrorText"
+            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+            Style="{StaticResource BodyTextBlockStyle}"
+            TextWrapping="Wrap"
+            Visibility="Collapsed" />
+    </StackPanel>
+</UserControl>

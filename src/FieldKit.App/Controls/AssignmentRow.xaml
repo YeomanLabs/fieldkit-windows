@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="FieldKit.App.Controls.AssignmentRow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:FieldKit.App.Controls"
+    IsTabStop="False">
+
+    <StackPanel Padding="0,6" Spacing="3">
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="NameText" IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" />
+            <!-- Intents (Required, Available, Uninstall) as small chips. -->
+            <controls:FlowPanel x:Name="Intents" Grid.Column="1" VerticalAlignment="Top" Spacing="4" />
+        </Grid>
+        <TextBlock x:Name="DetailText" Style="{StaticResource CaptionSecondaryStyle}" />
+        <TextBlock x:Name="ViaText" Style="{StaticResource CaptionSecondaryStyle}" />
+        <StackPanel x:Name="ExcludedPanel" Orientation="Horizontal" Spacing="6">
+            <FontIcon
+                AutomationProperties.AccessibilityView="Raw"
+                FontSize="12"
+                Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                Glyph="&#xE738;" />
+            <TextBlock x:Name="ExcludedText" Foreground="{ThemeResource SystemFillColorCautionBrush}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

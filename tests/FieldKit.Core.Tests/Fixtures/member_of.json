@@ -1,0 +1,8 @@
+{
+  "value": [
+    { "@odata.type": "#microsoft.graph.group", "id": "g-2", "displayName": "Zeta Devices", "groupTypes": [], "securityEnabled": true },
+    { "@odata.type": "#microsoft.graph.directoryRole", "id": "r-1", "displayName": "Helpdesk Administrator" },
+    { "@odata.type": "#microsoft.graph.group", "id": "g-1", "displayName": "Alpha Laptops", "groupTypes": ["DynamicMembership"], "membershipRule": "(device.displayName -startsWith \"CTS\")", "securityEnabled": true },
+    { "@odata.type": "#microsoft.graph.administrativeUnit", "id": "au-1", "displayName": "Region" }
+  ]
+}

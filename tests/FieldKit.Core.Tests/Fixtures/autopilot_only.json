@@ -1,0 +1,15 @@
+{
+  "value": [
+    {
+      "@odata.type": "#microsoft.graph.windowsAutopilotDeviceIdentity",
+      "id": "ap-0100",
+      "groupTag": "CTS-Standard",
+      "serialNumber": "PF9NEW01",
+      "manufacturer": "LENOVO",
+      "model": "ThinkPad T14 Gen 5",
+      "enrollmentState": "notContacted",
+      "lastContactedDateTime": "0001-01-01T00:00:00Z",
+      "userPrincipalName": null
+    }
+  ]
+}

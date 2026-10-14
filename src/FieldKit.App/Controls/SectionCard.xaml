@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="FieldKit.App.Controls.SectionCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    IsTabStop="False">
+
+    <Border Style="{StaticResource CardStyle}">
+        <StackPanel Spacing="12">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource CardHeaderStyle}"
+                Text="{x:Bind Header, Mode=OneWay}" />
+
+            <StackPanel x:Name="LoadingPanel" Orientation="Horizontal" Spacing="10" Visibility="Collapsed">
+                <ProgressRing Width="16" Height="16" IsActive="True" />
+                <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="Loading…" />
+            </StackPanel>
+
+            <TextBlock x:Name="MessageText" Style="{StaticResource SecondaryTextStyle}" Visibility="Collapsed" />
+
+            <StackPanel x:Name="FailedPanel" Spacing="10" Visibility="Collapsed">
+                <Grid ColumnSpacing="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <FontIcon
+                        Margin="0,2,0,0"
+                        VerticalAlignment="Top"
+                        AutomationProperties.AccessibilityView="Raw"
+                        FontSize="16"
+                        Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                        Glyph="&#xE7BA;" />
+                    <TextBlock x:Name="FailedText" Grid.Column="1" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" />
+                </Grid>
+                <Button x:Name="RetryButton" Click="Retry_Click" Content="Retry" />
+            </StackPanel>
+
+            <ContentPresenter x:Name="ContentHost" Content="{x:Bind CardContent, Mode=OneWay}" Visibility="Collapsed" />
+        </StackPanel>
+    </Border>
+</UserControl>

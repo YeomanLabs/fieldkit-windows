@@ -1,0 +1,14 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#deviceManagement/managedDevices(id,totalStorageSpaceInBytes)/$entity",
+  "id": "i-1",
+  "totalStorageSpaceInBytes": 255013683200,
+  "freeStorageSpaceInBytes": 120259084288,
+  "wiFiMacAddress": "a1b2c3d4e5f6",
+  "ethernetMacAddress": "",
+  "imei": null,
+  "phoneNumber": " ",
+  "isSupervised": false,
+  "jailBroken": "Unknown",
+  "managementAgent": "mdm",
+  "deviceEnrollmentType": "windowsAzureADJoin"
+}

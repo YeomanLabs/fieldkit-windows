@@ -1,0 +1,24 @@
+{
+  "value": [
+    {
+      "@odata.type": "#microsoft.graph.win32LobApp",
+      "id": "a-1", "displayName": "Google Chrome", "publisher": "Google",
+      "assignments": [
+        { "id": "x1", "intent": "required", "target": { "@odata.type": "#microsoft.graph.groupAssignmentTarget", "groupId": "g-laptops", "deviceAndAppManagementAssignmentFilterId": null } },
+        { "id": "x2", "intent": "required", "target": { "@odata.type": "#microsoft.graph.exclusionGroupAssignmentTarget", "groupId": "g-kiosk" } }
+      ]
+    },
+    {
+      "@odata.type": "#microsoft.graph.winGetApp",
+      "id": "a-2", "displayName": "Company Portal",
+      "assignments": [ { "intent": "required", "target": { "@odata.type": "#microsoft.graph.allDevicesAssignmentTarget" } } ]
+    },
+    {
+      "@odata.type": "#microsoft.graph.iosVppApp",
+      "id": "a-3", "displayName": "Teams",
+      "assignments": [ { "intent": "available", "target": { "@odata.type": "#microsoft.graph.allLicensedUsersAssignmentTarget" } } ]
+    },
+    { "@odata.type": "#microsoft.graph.someFutureApp", "id": "a-4", "displayName": "Unassigned", "assignments": [] },
+    { "id": "a-5", "displayName": "No assignments key" }
+  ]
+}

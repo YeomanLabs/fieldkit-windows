@@ -1,0 +1,38 @@
+{
+  "value": [
+    {
+      "id": "aaaa1111-0000-0000-0000-000000000001",
+      "deviceName": "CTS-DT-00042",
+      "serialNumber": "PF2ABCDE",
+      "userPrincipalName": "",
+      "userDisplayName": null,
+      "lastSyncDateTime": "2026-07-01T08:00:00.5Z",
+      "complianceState": "noncompliant",
+      "operatingSystem": "Windows",
+      "osVersion": "10.0.22631.4037",
+      "model": "ThinkCentre M70q",
+      "manufacturer": "LENOVO",
+      "managedDeviceOwnerType": "company",
+      "azureADDeviceId": "00000000-0000-0000-0000-000000000000",
+      "enrolledDateTime": "0001-01-01T00:00:00Z",
+      "isEncrypted": false
+    },
+    {
+      "id": "aaaa1111-0000-0000-0000-000000000002",
+      "deviceName": "DESKTOP-7Q2LMNP",
+      "serialNumber": "PF2ABCDE",
+      "userPrincipalName": "sam.lee@contoso.com",
+      "userDisplayName": "Sam Lee",
+      "lastSyncDateTime": "2026-10-08T23:59:59Z",
+      "complianceState": "inGracePeriod",
+      "operatingSystem": "Windows",
+      "osVersion": "10.0.26100.4652",
+      "model": "ThinkCentre M70q",
+      "manufacturer": "LENOVO",
+      "managedDeviceOwnerType": "company",
+      "azureADDeviceId": "d1b2c3d4-0000-4000-8000-123456789abc",
+      "enrolledDateTime": "2026-10-01T10:00:00Z",
+      "isEncrypted": true
+    }
+  ]
+}

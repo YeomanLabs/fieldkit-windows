@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs/
+*.user
+TestResults/
+# Release builds (tools\Build-Release.ps1).
+artifacts/
+*.msi
+*.wixpdb

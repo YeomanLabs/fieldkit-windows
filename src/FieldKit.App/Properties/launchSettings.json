@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "FieldKit": {
+      "commandName": "Project"
+    },
+    "FieldKit (demo)": {
+      "commandName": "Project",
+      "commandLineArgs": "--demo"
+    }
+  }
+}

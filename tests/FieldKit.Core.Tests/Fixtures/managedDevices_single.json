@@ -1,0 +1,22 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#deviceManagement/managedDevices(id,deviceName,serialNumber)",
+  "value": [
+    {
+      "id": "6b9f2c1e-8a5d-4f3b-9c2e-1d7a4b8e0f11",
+      "deviceName": "CTS-LT-01234",
+      "serialNumber": "5CG1234XYZ",
+      "userPrincipalName": "alex.doe@contoso.com",
+      "userDisplayName": "Alex Doe",
+      "lastSyncDateTime": "2026-10-09T14:22:31.1234567Z",
+      "complianceState": "compliant",
+      "operatingSystem": "Windows",
+      "osVersion": "10.0.26100.4652",
+      "model": "HP EliteBook 840 G10",
+      "manufacturer": "HP",
+      "managedDeviceOwnerType": "company",
+      "azureADDeviceId": "c0a8e2f4-1b3d-4e5f-8a9b-0c1d2e3f4a5b",
+      "enrolledDateTime": "2025-03-04T09:15:00Z",
+      "isEncrypted": true
+    }
+  ]
+}

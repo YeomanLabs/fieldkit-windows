@@ -1,0 +1,20 @@
+<Project>
+  <!-- The whole allowed package list (Windows/CLAUDE.md), pinned. Ask before adding to it. -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- App -->
+    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="1.8.260921001" />
+    <PackageVersion Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" />
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageVersion Include="Microsoft.Identity.Client" Version="4.91.0" />
+    <PackageVersion Include="Microsoft.Identity.Client.Broker" Version="4.91.0" />
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.12" />
+    <!-- Tests -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <!-- xUnit v3 without Microsoft Testing Platform: runs through VSTest, so `dotnet test <path>` works from any folder. -->
+    <PackageVersion Include="xunit.v3.mtp-off" Version="4.0.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />
+  </ItemGroup>
+</Project>

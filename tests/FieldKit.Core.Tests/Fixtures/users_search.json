@@ -1,0 +1,7 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users(id,displayName,userPrincipalName,mail,jobTitle,department)",
+  "value": [
+    { "id": "u-1", "displayName": "Alex Doe", "userPrincipalName": "alex.doe@contoso.com", "mail": "alex.doe@contoso.com", "jobTitle": "Analyst", "department": "Finance" },
+    { "id": "u-2", "displayName": null, "userPrincipalName": "svc-kiosk@contoso.com", "mail": null, "jobTitle": null, "department": null }
+  ]
+}

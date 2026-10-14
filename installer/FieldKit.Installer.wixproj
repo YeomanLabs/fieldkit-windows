@@ -1,0 +1,19 @@
+<!--
+  FieldKit's MSI: per machine, into Program Files\FieldKit, with a Start menu shortcut. Built by
+  tools\Build-Release.ps1 from a self-contained publish folder (PublishDir), once per platform.
+
+  WiX 5.0.2, not 7: WiX 7 needs its Open Source Maintenance Fee EULA accepted before it builds,
+  which is the user's decision to make. 5.0.2 is MS-RL licensed with no such step.
+-->
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <PropertyGroup>
+    <OutputName>FieldKit</OutputName>
+    <Platforms>x64;ARM64</Platforms>
+    <InstallerPlatform Condition="'$(Platform)' == 'ARM64'">arm64</InstallerPlatform>
+    <InstallerPlatform Condition="'$(Platform)' != 'ARM64'">x64</InstallerPlatform>
+    <Version Condition="'$(Version)' == ''">0.0.0</Version>
+    <DefineConstants>Version=$(Version);PublishDir=$(PublishDir);IconPath=$(MSBuildThisFileDirectory)..\src\FieldKit.App\Assets\AppIcon.ico</DefineConstants>
+    <!-- No ICE validation run: it needs the Windows SDK's msi tools; the release script checks the result instead. -->
+    <SuppressValidation>true</SuppressValidation>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,30 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#deviceManagement/windowsAutopilotDeviceIdentities",
+  "value": [
+    {
+      "@odata.type": "#microsoft.graph.windowsAutopilotDeviceIdentity",
+      "id": "ap-0001",
+      "groupTag": "CTS-Standard",
+      "purchaseOrderIdentifier": "PO-889",
+      "serialNumber": "5cg1234xyz",
+      "productKey": "",
+      "manufacturer": "HP",
+      "model": "HP EliteBook 840 G10",
+      "enrollmentState": "enrolled",
+      "lastContactedDateTime": "2026-09-30T11:12:13.45Z",
+      "addressableUserName": "",
+      "userPrincipalName": "alex.doe@contoso.com"
+    },
+    {
+      "@odata.type": "#microsoft.graph.windowsAutopilotDeviceIdentity",
+      "id": "ap-0002",
+      "groupTag": "CTS-Kiosk",
+      "serialNumber": "X5CG1234XYZ9",
+      "manufacturer": "HP",
+      "model": "HP EliteDesk 800",
+      "enrollmentState": "notContacted",
+      "lastContactedDateTime": "0001-01-01T00:00:00Z",
+      "userPrincipalName": ""
+    }
+  ]
+}

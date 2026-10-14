@@ -1,0 +1,30 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#devices(id,displayName,accountEnabled,approximateLastSignInDateTime,trustType,operatingSystem,extensionAttributes)",
+  "value": [
+    {
+      "id": "7f3e9d1c-2b4a-4c6e-8f0a-1b2c3d4e5f60",
+      "displayName": "CTS-KIOSK-01",
+      "accountEnabled": true,
+      "approximateLastSignInDateTime": "2026-10-09T13:05:12Z",
+      "trustType": "AzureAd",
+      "operatingSystem": "Windows",
+      "extensionAttributes": {
+        "extensionAttribute1": "Kiosk",
+        "extensionAttribute2": null,
+        "extensionAttribute3": "",
+        "extensionAttribute4": null,
+        "extensionAttribute5": null,
+        "extensionAttribute6": null,
+        "extensionAttribute7": null,
+        "extensionAttribute8": null,
+        "extensionAttribute9": null,
+        "extensionAttribute10": null,
+        "extensionAttribute11": null,
+        "extensionAttribute12": null,
+        "extensionAttribute13": null,
+        "extensionAttribute14": null,
+        "extensionAttribute15": "Lobby, Building 2"
+      }
+    }
+  ]
+}

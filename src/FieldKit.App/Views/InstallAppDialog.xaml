@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="FieldKit.App.Views.InstallAppDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:FieldKit.App.Controls"
+    xmlns:local="using:FieldKit.App.Views"
+    xmlns:vm="using:FieldKit.Core.ViewModels"
+    Title="Install app"
+    CloseButtonText="Done"
+    DefaultButton="Close">
+
+    <Grid MinWidth="480" MaxHeight="560">
+        <!-- 1. Pick an app for this device's platform. -->
+        <StackPanel Spacing="12" Visibility="{x:Bind local:Ui.Collapsed(ViewModel.HasSelectedApp), Mode=OneWay}">
+            <TextBox
+                x:Name="SearchBox"
+                AutomationProperties.Name="App name"
+                IsSpellCheckEnabled="False"
+                PlaceholderText="App name"
+                Text="{x:Bind ViewModel.Query, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <controls:SectionCard
+                Header="Apps"
+                NotFoundText="{x:Bind ViewModel.AppsNotFoundText}"
+                RetryCommand="{x:Bind RetryCommand}"
+                State="{x:Bind ViewModel.Apps, Mode=OneWay}">
+                <ListView
+                    MaxHeight="340"
+                    Margin="-12,0"
+                    AutomationProperties.Name="Apps"
+                    IsItemClickEnabled="True"
+                    ItemClick="App_ItemClick"
+                    ItemContainerStyle="{StaticResource NavigableListItemStyle}"
+                    ItemsSource="{x:Bind ViewModel.AppRows, Mode=OneWay}"
+                    SelectionMode="None">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:InstallAppRow">
+                            <Grid AutomationProperties.Name="{x:Bind AutomationName}" ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2">
+                                    <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind Name}" TextWrapping="Wrap" />
+                                    <TextBlock Style="{StaticResource CaptionSecondaryStyle}" Text="{x:Bind Detail}" Visibility="{x:Bind local:Ui.Visible(HasDetail)}" />
+                                    <controls:ToneText
+                                        Text="{x:Bind StatusText}"
+                                        Tone="{x:Bind local:Ui.InstallTone(IsRequired, IsExcluded)}"
+                                        Visibility="{x:Bind local:Ui.Visible(HasStatusText)}" />
+                                </StackPanel>
+                                <Border Grid.Column="1" VerticalAlignment="Top" Style="{StaticResource IntentChipStyle}" Visibility="{x:Bind local:Ui.Visible(HasBadge)}">
+                                    <TextBlock Style="{StaticResource IntentChipTextStyle}" Text="{x:Bind Badge}" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </controls:SectionCard>
+            <TextBlock Style="{StaticResource CaptionSecondaryStyle}" Text="{x:Bind ViewModel.AppsFooter}" />
+        </StackPanel>
+
+        <!-- 2. The groups that would install it. -->
+        <ScrollViewer Visibility="{x:Bind local:Ui.Visible(ViewModel.HasSelectedApp), Mode=OneWay}">
+            <StackPanel Padding="0,0,12,0" Spacing="12">
+                <HyperlinkButton Margin="-12,0,0,0" AutomationProperties.Name="All apps" Click="Back_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon AutomationProperties.AccessibilityView="Raw" FontSize="12" Glyph="&#xE72B;" />
+                        <TextBlock Text="All apps" />
+                    </StackPanel>
+                </HyperlinkButton>
+                <controls:DetailRow Label="App" Value="{x:Bind ViewModel.SelectedName, Mode=OneWay}" />
+                <controls:DetailRow Label="Type" Value="{x:Bind ViewModel.SelectedDetail, Mode=OneWay}" />
+                <controls:ToneText Text="{x:Bind ViewModel.SelectedStatusText, Mode=OneWay}" Tone="{x:Bind local:Ui.InstallStatusTone(ViewModel.SelectedStatusKind), Mode=OneWay}" />
+
+                <controls:SectionCard
+                    Header="Required for these groups"
+                    NotFoundText="{x:Bind ViewModel.NoGroupText, Mode=OneWay}"
+                    RetryCommand="{x:Bind RetryOptionsCommand}"
+                    State="{x:Bind ViewModel.OptionRows, Mode=OneWay}">
+                    <ItemsControl IsEnabled="{x:Bind local:Ui.Not(ViewModel.IsWorking), Mode=OneWay}" IsTabStop="False" ItemsSource="{x:Bind ViewModel.OptionRowList, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:InstallOptionRow">
+                                <StackPanel Padding="0,6" Spacing="8">
+                                    <controls:GroupRow Group="{x:Bind Group}" />
+                                    <TextBlock Style="{StaticResource CaptionSecondaryStyle}" Text="Dynamic group: membership comes from its rule." Visibility="{x:Bind local:Ui.Visible(IsDynamic)}" />
+                                    <controls:ToneText Text="{x:Bind AlsoTargetsText}" Tone="Caution" Visibility="{x:Bind local:Ui.Visible(HasAlsoTargets)}" />
+                                    <controls:FlowPanel Spacing="8">
+                                        <Button Click="AddDevice_Click" Content="Add this device" IsEnabled="{x:Bind CanAddDevice, Mode=OneWay}" Tag="{x:Bind}" Visibility="{x:Bind local:Ui.Visible(ShowsAddDevice), Mode=OneWay}" />
+                                        <Button Click="RemoveDevice_Click" Content="Remove device" Tag="{x:Bind}" Visibility="{x:Bind local:Ui.Visible(ShowsRemoveDevice), Mode=OneWay}" />
+                                        <controls:ToneText Text="Device is in it via a nested group" Tone="Good" Visibility="{x:Bind local:Ui.Visible(DeviceViaNested), Mode=OneWay}" />
+                                        <Button Click="AddUser_Click" Content="{x:Bind AddUserText}" Tag="{x:Bind}" Visibility="{x:Bind local:Ui.Visible(ShowsAddUser), Mode=OneWay}" />
+                                        <Button Click="RemoveUser_Click" Content="Remove user" Tag="{x:Bind}" Visibility="{x:Bind local:Ui.Visible(ShowsRemoveUser), Mode=OneWay}" />
+                                        <controls:ToneText Text="User is in it via a nested group" Tone="Good" Visibility="{x:Bind local:Ui.Visible(UserViaNested), Mode=OneWay}" />
+                                    </controls:FlowPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </controls:SectionCard>
+                <TextBlock Style="{StaticResource CaptionSecondaryStyle}" Text="{x:Bind ViewModel.OptionsFooter}" />
+
+                <!-- The last add, remove or sync. -->
+                <StackPanel Spacing="8" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasOutcome), Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="10" Visibility="{x:Bind local:Ui.Visible(ViewModel.IsWorking), Mode=OneWay}">
+                        <ProgressRing Width="16" Height="16" IsActive="{x:Bind ViewModel.IsWorking, Mode=OneWay}" />
+                        <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="Working…" />
+                    </StackPanel>
+                    <controls:ToneText
+                        x:Name="OutcomeText"
+                        Text="{x:Bind ViewModel.OutcomeText, Mode=OneWay}"
+                        Tone="{x:Bind local:Ui.BannerTone(ViewModel.OutcomeIsFailure), Mode=OneWay}"
+                        Visibility="{x:Bind local:Ui.Collapsed(ViewModel.IsWorking), Mode=OneWay}" />
+                    <Button AutomationProperties.Name="Sync now" Click="Sync_Click" Visibility="{x:Bind local:Ui.Visible(ViewModel.OutcomeIsSuccess), Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon AutomationProperties.AccessibilityView="Raw" FontSize="14" Glyph="&#xE895;" />
+                            <TextBlock Text="Sync now" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</ContentDialog>

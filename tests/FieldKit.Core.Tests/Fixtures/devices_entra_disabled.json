@@ -1,0 +1,12 @@
+{
+  "value": [
+    {
+      "id": "7f3e9d1c-2b4a-4c6e-8f0a-1b2c3d4e5f61",
+      "displayName": "cts-lt-01234-old",
+      "accountEnabled": false,
+      "approximateLastSignInDateTime": null,
+      "trustType": "AzureAd",
+      "operatingSystem": "Windows"
+    }
+  ]
+}

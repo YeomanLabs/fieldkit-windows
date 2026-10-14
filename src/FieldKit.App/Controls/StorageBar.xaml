@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="FieldKit.App.Controls.StorageBar"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    IsTabStop="False">
+
+    <StackPanel Spacing="6">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="Levels">
+                <VisualState x:Name="Ok">
+                    <VisualState.Setters>
+                        <Setter Target="Bar.Foreground" Value="{ThemeResource SystemFillColorSuccessBrush}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Low">
+                    <VisualState.Setters>
+                        <Setter Target="Bar.Foreground" Value="{ThemeResource SystemFillColorCautionBrush}" />
+                        <Setter Target="Free.Foreground" Value="{ThemeResource SystemFillColorCautionBrush}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Critical">
+                    <VisualState.Setters>
+                        <Setter Target="Bar.Foreground" Value="{ThemeResource SystemFillColorCriticalBrush}" />
+                        <Setter Target="Free.Foreground" Value="{ThemeResource SystemFillColorCriticalBrush}" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <ProgressBar x:Name="Bar" MinHeight="6" AutomationProperties.AccessibilityView="Raw" Maximum="100" />
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="Summary" Style="{StaticResource CaptionSecondaryStyle}" />
+            <TextBlock x:Name="Free" Grid.Column="1" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        </Grid>
+    </StackPanel>
+</UserControl>

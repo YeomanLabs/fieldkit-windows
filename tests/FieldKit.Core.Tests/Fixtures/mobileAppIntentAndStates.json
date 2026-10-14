@@ -1,0 +1,40 @@
+{
+  "@odata.context": "https://graph.microsoft.com/beta/$metadata#users('u-1')/mobileAppIntentAndStates/$entity",
+  "id": "i-1",
+  "managedDeviceIdentifier": "i-1",
+  "userId": "u-1",
+  "mobileAppList": [
+    {
+      "applicationId": "app-chrome",
+      "displayName": "Google Chrome 153.0.8010.37",
+      "mobileAppIntent": "available",
+      "displayVersion": "153.0.8010.37",
+      "installState": "unknown",
+      "supportedDeviceTypes": []
+    },
+    {
+      "applicationId": "app-portal",
+      "displayName": "Company Portal",
+      "mobileAppIntent": "requiredInstall",
+      "displayVersion": "",
+      "installState": "installed",
+      "supportedDeviceTypes": []
+    },
+    {
+      "applicationId": "app-vpn",
+      "displayName": "Contoso VPN 4.2",
+      "mobileAppIntent": "requiredAndAvailableInstall",
+      "displayVersion": "4.2.0",
+      "installState": "failed",
+      "supportedDeviceTypes": []
+    },
+    {
+      "applicationId": "app-oldvpn",
+      "displayName": "Old VPN client",
+      "mobileAppIntent": "requiredUninstall",
+      "displayVersion": null,
+      "installState": "notInstalled",
+      "supportedDeviceTypes": []
+    }
+  ]
+}

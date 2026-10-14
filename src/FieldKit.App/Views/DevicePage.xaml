@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="FieldKit.App.Views.DevicePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:FieldKit.App.Controls"
+    xmlns:domain="using:FieldKit.Core.Domain"
+    xmlns:local="using:FieldKit.App.Views"
+    Background="Transparent">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header: name, serial and platform. -->
+        <StackPanel Padding="36,20,24,0" Spacing="2">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                IsTextSelectionEnabled="True"
+                Style="{StaticResource PageTitleStyle}"
+                Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+            <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource SecondaryTextStyle}" Text="{x:Bind ViewModel.Subtitle, Mode=OneWay}" />
+        </StackPanel>
+
+        <!--
+            The device's commands. Restart, retire, remediations and secrets ask for Windows Hello;
+            sync doesn't. Intune's audit log records each action under the signed-in account.
+        -->
+        <CommandBar
+            x:Name="Commands"
+            Grid.Row="1"
+            Margin="24,4,24,0"
+            HorizontalAlignment="Left"
+            Background="Transparent"
+            DefaultLabelPosition="Right"
+            IsDynamicOverflowEnabled="True"
+            IsEnabled="{x:Bind local:Ui.Not(Actions.IsRunning), Mode=OneWay}">
+            <AppBarButton Click="Refresh_Click" Label="Refresh" ToolTipService.ToolTip="Refresh (F5)">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE72C;" />
+                </AppBarButton.Icon>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="F5" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <AppBarButton
+                Click="Sync_Click"
+                IsEnabled="{x:Bind ViewModel.HasIntuneRecord, Mode=OneWay}"
+                Label="Sync"
+                ToolTipService.ToolTip="Ask the device to check in with Intune now">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE895;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton
+                Click="InstallApp_Click"
+                IsEnabled="{x:Bind ViewModel.HasIntuneRecord, Mode=OneWay}"
+                Label="Install app…"
+                ToolTipService.ToolTip="Install an Intune app by adding the device or its user to a Required group">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE896;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton
+                Click="Laps_Click"
+                IsEnabled="{x:Bind ViewModel.HasEntraDeviceId, Mode=OneWay}"
+                Label="Show LAPS password"
+                ToolTipService.ToolTip="Needs Windows Hello and the device's Entra device ID">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE8D7;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton
+                Click="BitLocker_Click"
+                IsEnabled="{x:Bind ViewModel.HasEntraDeviceId, Mode=OneWay}"
+                Label="Show BitLocker keys"
+                ToolTipService.ToolTip="Needs Windows Hello and the device's Entra device ID">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE72E;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton
+                    Click="Restart_Click"
+                    IsEnabled="{x:Bind ViewModel.HasIntuneRecord, Mode=OneWay}"
+                    Label="Restart…">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE7E8;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    Click="Remediation_Click"
+                    Label="Run remediation…"
+                    Visibility="{x:Bind local:Ui.Visible(ViewModel.IsWindows), Mode=OneWay}">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE90F;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton
+                    Click="Retire_Click"
+                    IsEnabled="{x:Bind ViewModel.HasIntuneRecord, Mode=OneWay}"
+                    Label="Retire…">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE7BA;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+
+        <!-- The last action's progress or result. -->
+        <InfoBar
+            x:Name="ActionStatusBar"
+            Grid.Row="2"
+            Margin="36,4,36,4"
+            Closed="ActionStatusBar_Closed"
+            IsClosable="{x:Bind local:Ui.Not(Actions.IsRunning), Mode=OneWay}"
+            IsOpen="{x:Bind Actions.HasStatus, Mode=OneWay}"
+            Message="{x:Bind Actions.StatusText, Mode=OneWay}"
+            Severity="{x:Bind local:Ui.ActionSeverity(Actions.StatusIsDone, Actions.StatusIsFailure), Mode=OneWay}">
+            <InfoBar.Content>
+                <ProgressBar Margin="0,0,0,8" IsIndeterminate="True" Visibility="{x:Bind local:Ui.Visible(Actions.IsRunning), Mode=OneWay}" />
+            </InfoBar.Content>
+        </InfoBar>
+
+        <!-- Tabs: Overview, then the pages iOS links to from the device. -->
+        <SelectorBar x:Name="Tabs" Grid.Row="3" Margin="28,0,24,4" SelectionChanged="Tabs_SelectionChanged">
+            <SelectorBarItem x:Name="OverviewTab" IsSelected="True" Text="Overview" />
+            <SelectorBarItem
+                x:Name="AssignmentsTab"
+                IsEnabled="{x:Bind ViewModel.CanShowAssignments, Mode=OneWay}"
+                Text="Groups and assignments"
+                ToolTipService.ToolTip="What Intune targets at this device and its primary user" />
+            <SelectorBarItem
+                x:Name="InventoryTab"
+                IsEnabled="{x:Bind ViewModel.HasIntuneRecord, Mode=OneWay}"
+                Text="Hardware, storage and apps"
+                ToolTipService.ToolTip="What Intune's inventory reports about this device" />
+            <SelectorBarItem
+                x:Name="InstallTab"
+                IsEnabled="{x:Bind ViewModel.HasIntuneRecord, Mode=OneWay}"
+                Text="Install status"
+                ToolTipService.ToolTip="Whether the apps and configuration Intune targets actually applied on this device" />
+        </SelectorBar>
+
+        <ScrollViewer x:Name="InstallScroll" Grid.Row="4" Visibility="Collapsed">
+            <Grid Padding="36,8,36,36">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MaxWidth="900" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <local:InstallStatusView x:Name="InstallStatus" />
+            </Grid>
+        </ScrollViewer>
+
+        <ScrollViewer x:Name="InventoryScroll" Grid.Row="4" Visibility="Collapsed">
+            <Grid Padding="36,8,36,20">
+                <local:InventoryView x:Name="Inventory" />
+            </Grid>
+        </ScrollViewer>
+        <ScrollViewer x:Name="AssignmentsScroll" Grid.Row="4" Visibility="Collapsed">
+            <Grid Padding="36,8,36,36">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MaxWidth="900" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <local:AssignmentsView x:Name="Assignments" GroupInvoked="Assignments_GroupInvoked" />
+            </Grid>
+        </ScrollViewer>
+
+        <ScrollViewer x:Name="OverviewScroll" Grid.Row="4">
+            <StackPanel Padding="36,8,36,36" Spacing="16">
+
+                <!-- Flags -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel Spacing="12">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock AutomationProperties.HeadingLevel="Level2" Style="{StaticResource CardHeaderStyle}" Text="Flags" />
+                            <ProgressRing
+                                Width="14"
+                                Height="14"
+                                AutomationProperties.Name="Still checking"
+                                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                                Visibility="{x:Bind local:Ui.Visible(ViewModel.IsLoading), Mode=OneWay}" />
+                        </StackPanel>
+                        <TextBlock
+                            Style="{StaticResource SecondaryTextStyle}"
+                            Text="Checking…"
+                            Visibility="{x:Bind local:Ui.Checking(ViewModel.HasFlags, ViewModel.IsLoading), Mode=OneWay}" />
+                        <StackPanel Orientation="Horizontal" Spacing="8" Visibility="{x:Bind local:Ui.NoProblems(ViewModel.HasFlags, ViewModel.IsLoading, ViewModel.HasFailedSection), Mode=OneWay}">
+                            <FontIcon AutomationProperties.AccessibilityView="Raw" Foreground="{ThemeResource SystemFillColorSuccessBrush}" Glyph="&#xE930;" />
+                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="No problems found" />
+                        </StackPanel>
+                        <Grid ColumnSpacing="8" Visibility="{x:Bind local:Ui.Incomplete(ViewModel.IsLoading, ViewModel.HasFailedSection), Mode=OneWay}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <FontIcon VerticalAlignment="Top" Margin="0,2,0,0" AutomationProperties.AccessibilityView="Raw" Foreground="{ThemeResource SystemFillColorCautionBrush}" Glyph="&#xE7BA;" />
+                            <TextBlock Grid.Column="1" Style="{StaticResource BodyTextBlockStyle}" Text="Some checks couldn't run because a section below didn't load. Fix that, then select Retry or Refresh." TextWrapping="Wrap" />
+                        </Grid>
+                        <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.Flags, Mode=OneWay}" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasFlags), Mode=OneWay}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:FlowPanel Spacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="domain:Flag">
+                                    <controls:FlagChip Flag="{x:Bind}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.Flags, Mode=OneWay}" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasFlags), Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="domain:Flag">
+                                    <TextBlock Margin="0,2" Style="{StaticResource SecondaryTextStyle}" Text="{x:Bind Detail}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Intune, compliance, Entra and Autopilot: two columns when there's room. -->
+                <Grid x:Name="Cards" ColumnSpacing="16" RowSpacing="16" SizeChanged="Cards_SizeChanged">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition x:Name="SecondColumn" Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel x:Name="LeftColumn" Spacing="16">
+                        <controls:SectionCard
+                            Header="Intune"
+                            NotFoundText="No managed device with this serial."
+                            RetryCommand="{x:Bind ViewModel.LoadIntuneCommand}"
+                            State="{x:Bind ViewModel.Intune, Mode=OneWay}">
+                            <StackPanel Spacing="10">
+                                <ComboBox
+                                    x:Name="RecordPicker"
+                                    HorizontalAlignment="Stretch"
+                                    Header="This serial has more than one Intune record. Showing:"
+                                    ItemsSource="{x:Bind ViewModel.IntuneRecords, Mode=OneWay}"
+                                    SelectedItem="{x:Bind ViewModel.SelectedIntune, Mode=OneWay}"
+                                    SelectionChanged="RecordPicker_SelectionChanged"
+                                    Visibility="{x:Bind local:Ui.Visible(ViewModel.HasDuplicateRecords), Mode=OneWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="domain:IntuneDevice">
+                                            <TextBlock Text="{x:Bind local:Ui.RecordChoice(DeviceName, LastSyncDateTime)}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <controls:DetailRow Label="Device name" Value="{x:Bind ViewModel.SelectedIntune.DeviceName, Mode=OneWay}" />
+                                <controls:DetailRow Label="Primary user" Value="{x:Bind local:Ui.PrimaryUser(ViewModel.SelectedIntune), Mode=OneWay}" />
+                                <controls:DetailRow Label="Last sync" Value="{x:Bind local:Ui.LastSync(ViewModel.SelectedIntune), Mode=OneWay}" />
+                                <controls:DetailRow
+                                    Label="Compliance"
+                                    Tone="{x:Bind local:Ui.ComplianceTone(ViewModel.SelectedIntune.ComplianceState), Mode=OneWay}"
+                                    Value="{x:Bind ViewModel.SelectedIntune.ComplianceState.DisplayName, Mode=OneWay}" />
+                                <controls:DetailRow Label="OS" Value="{x:Bind local:Ui.OperatingSystem(ViewModel.SelectedIntune), Mode=OneWay}" />
+                                <controls:DetailRow Label="Model" Value="{x:Bind local:Ui.Model(ViewModel.SelectedIntune), Mode=OneWay}" />
+                                <controls:DetailRow Label="Ownership" Value="{x:Bind ViewModel.SelectedIntune.OwnershipDisplayName, Mode=OneWay}" />
+                                <controls:DetailRow Label="Enrolled" Value="{x:Bind local:Ui.Enrolled(ViewModel.SelectedIntune), Mode=OneWay}" />
+                                <controls:DetailRow Label="Encrypted" Value="{x:Bind local:Ui.Encrypted(ViewModel.SelectedIntune), Mode=OneWay}" />
+                                <Grid ColumnSpacing="16" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasStorage), Mode=OneWay}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="148" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="Storage" />
+                                    <controls:StorageBar Grid.Column="1" Usage="{x:Bind ViewModel.SelectedIntune.Storage, Mode=OneWay}" />
+                                </Grid>
+                            </StackPanel>
+                        </controls:SectionCard>
+
+                        <controls:SectionCard
+                            Header="Compliance policies"
+                            NotFoundText="No compliance policies apply to this device."
+                            RetryCommand="{x:Bind ViewModel.LoadComplianceCommand}"
+                            State="{x:Bind ViewModel.Compliance, Mode=OneWay}">
+                            <StackPanel>
+                                <TextBlock
+                                    Style="{StaticResource SecondaryTextStyle}"
+                                    Text="No compliance policies apply to this device."
+                                    Visibility="{x:Bind local:Ui.Collapsed(ViewModel.HasCompliancePolicies), Mode=OneWay}" />
+                                <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.CompliancePolicies, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="domain:CompliancePolicyState">
+                                            <StackPanel Padding="0,6" Spacing="6">
+                                                <Grid ColumnSpacing="12">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind DisplayName}" TextWrapping="Wrap" />
+                                                    <controls:ToneText Grid.Column="1" Text="{x:Bind State.DisplayName}" Tone="{x:Bind local:Ui.PolicyTone(State)}" />
+                                                </Grid>
+                                                <ItemsControl IsTabStop="False" ItemsSource="{x:Bind FailingSettings}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="domain:CompliancePolicySetting">
+                                                            <Grid Margin="0,2" ColumnSpacing="10">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <FontIcon
+                                                                    Margin="0,3,0,0"
+                                                                    VerticalAlignment="Top"
+                                                                    AutomationProperties.AccessibilityView="Raw"
+                                                                    FontSize="14"
+                                                                    Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                                                    Glyph="&#xEA39;" />
+                                                                <StackPanel Grid.Column="1">
+                                                                    <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind Name}" TextWrapping="Wrap" />
+                                                                    <TextBlock
+                                                                        IsTextSelectionEnabled="True"
+                                                                        Style="{StaticResource CaptionSecondaryStyle}"
+                                                                        Text="{x:Bind local:Ui.SettingDetail(Name, CurrentValue, ErrorDescription)}"
+                                                                        Visibility="{x:Bind local:Ui.SettingDetailVisibility(Name, CurrentValue, ErrorDescription)}" />
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <TextBlock
+                                                    Style="{StaticResource CaptionSecondaryStyle}"
+                                                    Text="Intune didn't report which setting failed. Check the device in the Intune admin center."
+                                                    Visibility="{x:Bind local:Ui.Visible(FailedWithoutDetail)}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </controls:SectionCard>
+                    </StackPanel>
+
+                    <StackPanel x:Name="RightColumn" Grid.Column="1" Spacing="16">
+                        <controls:SectionCard
+                            Header="Entra"
+                            NotFoundText="No Entra device matches Intune's device ID."
+                            RetryCommand="{x:Bind ViewModel.LoadEntraCommand}"
+                            State="{x:Bind ViewModel.Entra, Mode=OneWay}">
+                            <StackPanel Spacing="10">
+                                <controls:DetailRow Label="Display name" Value="{x:Bind ViewModel.EntraDevice.DisplayName, Mode=OneWay}" />
+                                <controls:DetailRow Label="Trust type" Value="{x:Bind ViewModel.EntraDevice.TrustType.DisplayName, Mode=OneWay}" />
+                                <controls:DetailRow
+                                    Label="Account enabled"
+                                    Tone="{x:Bind local:Ui.EnabledTone(ViewModel.EntraDevice.AccountEnabled), Mode=OneWay}"
+                                    Value="{x:Bind local:Ui.YesNo(ViewModel.EntraDevice.AccountEnabled), Mode=OneWay}" />
+                                <controls:DetailRow Label="Last sign-in" Value="{x:Bind local:Ui.LastSignIn(ViewModel.EntraDevice), Mode=OneWay}" />
+                                <StackPanel Padding="0,6,0,0" Spacing="10">
+                                    <TextBlock AutomationProperties.HeadingLevel="Level3" Style="{StaticResource BodyStrongTextBlockStyle}" Text="Extension attributes" />
+                                    <TextBlock
+                                        Style="{StaticResource SecondaryTextStyle}"
+                                        Text="None set."
+                                        Visibility="{x:Bind local:Ui.Collapsed(ViewModel.HasExtensionAttributes), Mode=OneWay}" />
+                                    <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.ExtensionAttributeList, Mode=OneWay}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Spacing="10" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="domain:ExtensionAttribute">
+                                                <controls:DetailRow Label="{x:Bind Name}" Value="{x:Bind Value}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Button
+                                        AutomationProperties.Name="Edit extension attributes"
+                                        Click="EditExtensionAttributes_Click"
+                                        IsEnabled="{x:Bind ViewModel.CanEditExtensionAttributes, Mode=OneWay}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon AutomationProperties.AccessibilityView="Raw" FontSize="14" Glyph="&#xE70F;" />
+                                            <TextBlock Text="Edit extension attributes" />
+                                        </StackPanel>
+                                    </Button>
+                                    <controls:ToneText Text="{x:Bind ViewModel.EntraNotice, Mode=OneWay}" Tone="Good" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasEntraNotice), Mode=OneWay}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </controls:SectionCard>
+
+                        <controls:SectionCard
+                            Header="Autopilot"
+                            NotFoundText="Not registered in Autopilot."
+                            RetryCommand="{x:Bind ViewModel.LoadAutopilotCommand}"
+                            State="{x:Bind ViewModel.Autopilot, Mode=OneWay}">
+                            <StackPanel Spacing="8">
+                                <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.AutopilotRecords, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="domain:AutopilotDevice">
+                                            <StackPanel Padding="0,0,0,8" Spacing="10">
+                                                <controls:DetailRow Label="Group tag" Value="{x:Bind GroupTag}" />
+                                                <controls:DetailRow Label="Assigned user" Value="{x:Bind AssignedUser}" />
+                                                <controls:DetailRow Label="Enrollment state" Value="{x:Bind EnrollmentState.DisplayName}" />
+                                                <controls:DetailRow Label="Last contacted" Value="{x:Bind local:Ui.LastContacted(Id, LastContacted)}" />
+                                                <Button
+                                                    AutomationProperties.Name="Edit group tag and user"
+                                                    Click="EditAutopilot_Click"
+                                                    Tag="{x:Bind}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <FontIcon AutomationProperties.AccessibilityView="Raw" FontSize="14" Glyph="&#xE70F;" />
+                                                        <TextBlock Text="Edit group tag and user" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <controls:ToneText Text="{x:Bind ViewModel.AutopilotNotice, Mode=OneWay}" Tone="Good" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasAutopilotNotice), Mode=OneWay}" />
+                            </StackPanel>
+                        </controls:SectionCard>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

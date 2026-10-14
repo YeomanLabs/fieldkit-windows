@@ -122,6 +122,17 @@ FieldKit collects nothing. It talks only to Microsoft sign-in and Microsoft Grap
 
 LAPS passwords and BitLocker keys are shown only after Windows Hello, masked until you select Show, hidden when FieldKit loses focus, kept out of screenshots and screen sharing while shown, and closed after two minutes. Copying one keeps it out of clipboard history and cloud clipboard, and clears it after 60 seconds.
 
+## Source code
+
+FieldKit for Windows is open source under the MIT license, and the full source is in this repo: C#, .NET 10 and WinUI 3, with no Graph SDK and no telemetry. Each release's source is tagged with its version, so you can read exactly what you're deploying, or build it yourself.
+
+```powershell
+dotnet test tests\FieldKit.Core.Tests
+pwsh tools\Start-FieldKit.ps1 -Demo
+```
+
+[CONTRIBUTING.md](CONTRIBUTING.md) covers building, the layout and the rules a change has to keep.
+
 ## Help
 
 Questions and problems: [open an issue](../../issues).

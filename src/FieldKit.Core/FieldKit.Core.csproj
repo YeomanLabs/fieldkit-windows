@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Plain .NET: no WinUI, WinRT or MSAL. Everything here is covered by dotnet test. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>FieldKit.Core</RootNamespace>
+    <!-- Keeps JSON on source-generated contexts: reflection-based serialization fails the build. -->
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- View models (UI-framework neutral) and the SQLite store live here so dotnet test covers them. -->
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="FieldKit.Core.Tests" />
+  </ItemGroup>
+
+</Project>

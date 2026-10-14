@@ -1,0 +1,8 @@
+{
+  "value": [
+    { "@odata.type": "#microsoft.graph.user", "id": "u-1", "displayName": "Alex Doe", "userPrincipalName": "alex.doe@contoso.com" },
+    { "@odata.type": "#microsoft.graph.device", "id": "e-1", "displayName": "CTS-LT-01234", "deviceId": "c0a8e2f4-1b3d-4e5f-8a9b-0c1d2e3f4a5b", "operatingSystem": "Windows" },
+    { "@odata.type": "#microsoft.graph.group", "id": "g-9", "displayName": "Nested" },
+    { "@odata.type": "#microsoft.graph.servicePrincipal", "id": "sp-1", "displayName": "Some app" }
+  ]
+}

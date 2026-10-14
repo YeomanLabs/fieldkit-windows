@@ -1,0 +1,23 @@
+{
+  "id": "i-1",
+  "physicalMemoryInBytes": 17179869184,
+  "processorArchitecture": "unknown",
+  "hardwareInformation": {
+    "serialNumber": "5CG1234XYZ",
+    "operatingSystemEdition": "Enterprise",
+    "osBuildNumber": "26100.4652",
+    "systemManagementBIOSVersion": "V70 Ver. 01.07.10",
+    "tpmSpecificationVersion": "",
+    "tpmVersion": "2.0",
+    "tpmManufacturer": "IFX",
+    "batteryHealthPercentage": 87,
+    "batteryChargeCycles": 0,
+    "batteryLevelPercentage": 0.0,
+    "ipAddressV4": "10.20.30.41",
+    "subnetAddress": "10.20.30.0",
+    "wiredIPv4Addresses": ["", "10.0.0.5"],
+    "deviceFullQualifiedDomainName": "CTS-LT-01234.contoso.local",
+    "deviceGuardVirtualizationBasedSecurityState": "running",
+    "isSharedDevice": false
+  }
+}

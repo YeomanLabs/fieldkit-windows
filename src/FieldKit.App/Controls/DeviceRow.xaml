@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="FieldKit.App.Controls.DeviceRow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    IsTabStop="False">
+
+    <Grid x:Name="Row" ColumnSpacing="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <FontIcon
+            x:Name="PlatformIcon"
+            Margin="0,2,0,0"
+            VerticalAlignment="Top"
+            AutomationProperties.AccessibilityView="Raw"
+            FontSize="20"
+            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        <StackPanel Grid.Column="1" Spacing="1">
+            <TextBlock x:Name="NameText" Style="{StaticResource BodyTextBlockStyle}" TextTrimming="CharacterEllipsis" />
+            <TextBlock x:Name="SubtitleText" Style="{StaticResource CaptionSecondaryStyle}" />
+            <TextBlock x:Name="SyncedText" Style="{StaticResource CaptionSecondaryStyle}" />
+        </StackPanel>
+        <FontIcon
+            x:Name="ComplianceIcon"
+            Grid.Column="2"
+            VerticalAlignment="Center"
+            FontSize="16"
+            Foreground="{ThemeResource SystemFillColorCautionBrush}"
+            Glyph="&#xE7BA;" />
+    </Grid>
+</UserControl>

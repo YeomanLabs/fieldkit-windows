@@ -1,0 +1,6 @@
+{
+  "value": [
+    { "id": "ap-p1", "serialNumber": "PAGED01", "groupTag": "A", "enrollmentState": "enrolled" }
+  ],
+  "@odata.nextLink": "https://graph.microsoft.com/v1.0/deviceManagement/windowsAutopilotDeviceIdentities?$skiptoken=abc"
+}

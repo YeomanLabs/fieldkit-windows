@@ -1,0 +1,139 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#auditLogs/signIns",
+  "value": [
+    {
+      "id": "8f2c5c1e-6a2b-4d7e-9a11-0c5d2e7f3b01",
+      "createdDateTime": "2026-10-14T13:22:05Z",
+      "userDisplayName": "Casey Nguyen",
+      "userPrincipalName": "casey.nguyen@contoso.com",
+      "userId": "u-casey",
+      "appId": "1fec8e78-bce4-4aaf-ab1b-5451cc387264",
+      "appDisplayName": "Microsoft Teams",
+      "ipAddress": "203.0.113.24",
+      "clientAppUsed": "Mobile Apps and Desktop clients",
+      "correlationId": "b1f7d4a2-3c5e-4f60-8a9b-1c2d3e4f5a60",
+      "conditionalAccessStatus": "failure",
+      "isInteractive": true,
+      "riskDetail": "none",
+      "riskLevelAggregated": "none",
+      "riskLevelDuringSignIn": "none",
+      "riskState": "none",
+      "riskEventTypes": [],
+      "resourceDisplayName": "Microsoft Teams Services",
+      "resourceId": "cc15fd57-2c6c-4117-a88c-83b1d56b4bbe",
+      "status": {
+        "errorCode": 53000,
+        "failureReason": "Device is not in required device state: compliant. Conditional Access policy requires a compliant device, and the device is not compliant.",
+        "additionalDetails": null
+      },
+      "deviceDetail": {
+        "deviceId": "a0000000-0000-4000-8000-000000000006",
+        "displayName": "CTS-LT-01188",
+        "operatingSystem": "Windows10",
+        "browser": "",
+        "isCompliant": false,
+        "isManaged": true,
+        "trustType": "Azure AD joined"
+      },
+      "location": {
+        "city": "Redmond",
+        "state": "Washington",
+        "countryOrRegion": "US",
+        "geoCoordinates": { "altitude": null, "latitude": 39.78, "longitude": -89.65 }
+      },
+      "appliedConditionalAccessPolicies": [
+        {
+          "id": "6701123a-b4c6-48af-8565-565c8bf7cabc",
+          "displayName": "Require MFA for all users",
+          "enforcedGrantControls": ["Mfa"],
+          "enforcedSessionControls": [],
+          "result": "success"
+        },
+        {
+          "id": "de7e60eb-ed89-4d73-8205-2227def6b7c9",
+          "displayName": "Require compliant device for Microsoft 365",
+          "enforcedGrantControls": ["RequireCompliantDevice"],
+          "enforcedSessionControls": ["SignInFrequency"],
+          "result": "failure"
+        },
+        {
+          "id": "0b1c2d3e-4f50-6172-8394-a5b6c7d8e9f0",
+          "displayName": "Block legacy authentication",
+          "enforcedGrantControls": [],
+          "enforcedSessionControls": [],
+          "result": "notApplied"
+        }
+      ]
+    },
+    {
+      "id": "3d9e1a7b-2c4f-4e8a-b6d0-7f1e2a3b4c02",
+      "createdDateTime": "2026-10-14T11:05:40Z",
+      "userDisplayName": "Casey Nguyen",
+      "userPrincipalName": "casey.nguyen@contoso.com",
+      "userId": "u-casey",
+      "appDisplayName": "Office 365 Exchange Online",
+      "ipAddress": "198.51.100.7",
+      "clientAppUsed": "Exchange ActiveSync",
+      "correlationId": "",
+      "conditionalAccessStatus": "failure",
+      "isInteractive": true,
+      "resourceDisplayName": "Office 365 Exchange Online",
+      "status": {
+        "errorCode": 53003,
+        "failureReason": "Access has been blocked by Conditional Access policies. The access policy does not allow token issuance.",
+        "additionalDetails": null
+      },
+      "deviceDetail": {
+        "deviceId": "",
+        "displayName": null,
+        "operatingSystem": "Ios",
+        "browser": null,
+        "isCompliant": null,
+        "isManaged": null,
+        "trustType": null
+      },
+      "location": { "city": "", "state": null, "countryOrRegion": "US" }
+    },
+    {
+      "id": "c4a1b2e3-9d8f-4c7b-a6e5-d4c3b2a1f003",
+      "createdDateTime": "2026-10-13T16:40:12Z",
+      "userDisplayName": "Casey Nguyen",
+      "userPrincipalName": "casey.nguyen@contoso.com",
+      "userId": "u-casey",
+      "appDisplayName": "OfficeHome",
+      "ipAddress": "192.0.2.55",
+      "clientAppUsed": "Browser",
+      "correlationId": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
+      "conditionalAccessStatus": "success",
+      "isInteractive": true,
+      "resourceDisplayName": "OfficeHome",
+      "status": { "errorCode": 0, "failureReason": "Other.", "additionalDetails": null },
+      "deviceDetail": {
+        "deviceId": "",
+        "displayName": null,
+        "operatingSystem": "Windows10",
+        "browser": "Chrome 141.0.7390",
+        "isCompliant": null,
+        "isManaged": null,
+        "trustType": null
+      },
+      "location": { "city": "Toronto", "state": "Ontario", "countryOrRegion": "CA" },
+      "appliedConditionalAccessPolicies": [
+        {
+          "id": "6701123a-b4c6-48af-8565-565c8bf7cabc",
+          "displayName": "Require MFA for all users",
+          "enforcedGrantControls": ["Mfa"],
+          "enforcedSessionControls": [],
+          "result": "success"
+        },
+        {
+          "id": "11112222-3333-4444-5555-666677778888",
+          "displayName": "Block sign-ins from outside the US (report-only)",
+          "enforcedGrantControls": ["Block"],
+          "enforcedSessionControls": [],
+          "result": "reportOnlyFailure"
+        }
+      ]
+    }
+  ]
+}

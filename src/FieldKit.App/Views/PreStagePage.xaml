@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Autopilot pre-stage: one group tag, then scan (or paste) box after box. -->
+<Page
+    x:Class="FieldKit.App.Views.PreStagePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:FieldKit.App.Controls"
+    xmlns:local="using:FieldKit.App.Views"
+    xmlns:vm="using:FieldKit.Core.ViewModels"
+    Background="Transparent"
+    NavigationCacheMode="Enabled">
+
+    <ScrollViewer>
+        <Grid Padding="36,24,36,36">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MaxWidth="900" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="16">
+                <StackPanel Spacing="4">
+                    <TextBlock AutomationProperties.HeadingLevel="Level1" Style="{StaticResource PageTitleStyle}" Text="Autopilot pre-stage" />
+                    <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="Give every box you scan the same Autopilot group tag." />
+                </StackPanel>
+
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBox
+                            x:Name="TagBox"
+                            AutomationProperties.Name="Group tag to apply"
+                            IsSpellCheckEnabled="False"
+                            PlaceholderText="Group tag"
+                            Text="{x:Bind ViewModel.GroupTagText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.Header>
+                                <TextBlock Style="{StaticResource FieldHeaderStyle}" Text="Group tag to apply" />
+                            </TextBox.Header>
+                        </TextBox>
+                        <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.SuggestedTags, Mode=OneWay}" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasSuggestedTags), Mode=OneWay}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:FlowPanel Spacing="6" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <Button Padding="10,2" Click="SuggestedTag_Click" Content="{x:Bind}" FontSize="12" Tag="{x:Bind}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Style="{StaticResource CaptionSecondaryStyle}" Text="Every serial you scan gets this tag on its Autopilot record. Change it any time; it applies to the next scans." />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel Spacing="10">
+                        <controls:SerialEntryBox
+                            x:Name="Entry"
+                            IsEnabled="{x:Bind ViewModel.HasTag, Mode=OneWay}"
+                            ListPasted="Entry_ListPasted"
+                            PasteListDescription="Each serial gets the group tag, in order, as if it had been scanned."
+                            SerialSubmitted="Entry_SerialSubmitted"
+                            SubmitText="Tag" />
+                        <controls:ToneText
+                            x:Name="Banner"
+                            Text="{x:Bind ViewModel.BannerText, Mode=OneWay}"
+                            Tone="{x:Bind local:Ui.BannerTone(ViewModel.BannerIsWarning), Mode=OneWay}"
+                            Visibility="{x:Bind local:Ui.Visible(ViewModel.HasBanner), Mode=OneWay}" />
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Spacing="8" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasResults), Mode=OneWay}">
+                    <TextBlock AutomationProperties.HeadingLevel="Level2" Style="{StaticResource CardHeaderStyle}" Text="{x:Bind ViewModel.ResultsHeader, Mode=OneWay}" />
+                    <ListView
+                        Margin="-12,0"
+                        AutomationProperties.Name="Scanned serials"
+                        ItemsSource="{x:Bind ViewModel.Results}"
+                        SelectionMode="None">
+                        <ListView.ItemContainerStyle>
+                            <Style BasedOn="{StaticResource NavigableListItemStyle}" TargetType="ListViewItem" />
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:PreStageResult">
+                                <Grid AutomationProperties.Name="{x:Bind AutomationName, Mode=OneWay}" ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="2">
+                                        <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource MonospaceTextStyle}" Text="{x:Bind Serial}" />
+                                        <TextBlock Style="{StaticResource CaptionSecondaryStyle}" Text="{x:Bind Model, Mode=OneWay}" Visibility="{x:Bind local:Ui.Visible(HasModel), Mode=OneWay}" />
+                                        <controls:ToneText
+                                            Text="{x:Bind Detail, Mode=OneWay}"
+                                            Tone="{x:Bind local:Ui.PreStageTone(IsWarning, IsTagged), Mode=OneWay}"
+                                            Visibility="{x:Bind local:Ui.Visible(HasDetail), Mode=OneWay}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal" Spacing="8">
+                                        <ProgressRing
+                                            Width="18"
+                                            Height="18"
+                                            AutomationProperties.Name="Tagging"
+                                            IsActive="{x:Bind IsWorking, Mode=OneWay}"
+                                            Visibility="{x:Bind local:Ui.Visible(IsWorking), Mode=OneWay}" />
+                                        <Button
+                                            Click="Retry_Click"
+                                            Content="Retry"
+                                            Tag="{x:Bind}"
+                                            Visibility="{x:Bind local:Ui.Visible(IsFailed), Mode=OneWay}" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

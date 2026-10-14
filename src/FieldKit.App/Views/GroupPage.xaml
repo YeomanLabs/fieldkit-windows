@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="FieldKit.App.Views.GroupPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:FieldKit.App.Controls"
+    xmlns:domain="using:FieldKit.Core.Domain"
+    xmlns:local="using:FieldKit.App.Views"
+    xmlns:vm="using:FieldKit.Core.ViewModels"
+    Background="Transparent">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Padding="36,20,24,8" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="2">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level1"
+                    IsTextSelectionEnabled="True"
+                    Style="{StaticResource PageTitleStyle}"
+                    Text="{x:Bind ViewModel.Name, Mode=OneWay}" />
+                <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="{x:Bind ViewModel.KindTitle, Mode=OneWay}" />
+            </StackPanel>
+            <CommandBar Grid.Column="1" VerticalAlignment="Center" Background="Transparent" DefaultLabelPosition="Right">
+                <AppBarButton Command="{x:Bind ViewModel.RefreshCommand, Mode=OneWay}" Label="Refresh" ToolTipService.ToolTip="Refresh (F5)">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE72C;" />
+                    </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F5" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+            </CommandBar>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1">
+            <Grid Padding="36,8,36,36">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MaxWidth="900" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="16">
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="10">
+                            <controls:DetailRow Label="Type" Value="{x:Bind ViewModel.KindTitle, Mode=OneWay}" />
+                            <controls:DetailRow Label="Description" Value="{x:Bind ViewModel.Group.Description, Mode=OneWay}" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasDescription), Mode=OneWay}" />
+                            <StackPanel Spacing="4" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasMembershipRule), Mode=OneWay}">
+                                <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="Membership rule" />
+                                <TextBlock
+                                    IsTextSelectionEnabled="True"
+                                    Style="{StaticResource MonospaceTextStyle}"
+                                    Text="{x:Bind ViewModel.MembershipRule, Mode=OneWay}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                            <HyperlinkButton Margin="-12,0,0,0" Click="Members_Click" Content="Show members" />
+                        </StackPanel>
+                    </Border>
+
+                    <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.Sections, Mode=OneWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="16" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AssignmentKindSection">
+                                <controls:SectionCard
+                                    Header="{x:Bind Title}"
+                                    NotFoundText="{x:Bind NotFoundText}"
+                                    RetryCommand="{x:Bind RetryCommand}"
+                                    State="{x:Bind State, Mode=OneWay}">
+                                    <ItemsControl IsTabStop="False" ItemsSource="{x:Bind Items, Mode=OneWay}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="domain:ResolvedAssignment">
+                                                <controls:AssignmentRow Assignment="{x:Bind}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </controls:SectionCard>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Page>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="FieldKit.App.Views.GroupsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:FieldKit.App.Controls"
+    xmlns:domain="using:FieldKit.Core.Domain"
+    xmlns:local="using:FieldKit.App.Views"
+    Background="Transparent"
+    NavigationCacheMode="Enabled">
+
+    <Page.KeyboardAccelerators>
+        <KeyboardAccelerator Invoked="Refresh_Invoked" Key="F5" />
+    </Page.KeyboardAccelerators>
+
+    <Grid MaxWidth="960" Padding="36,24,36,0" RowSpacing="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Spacing="16">
+            <TextBlock AutomationProperties.HeadingLevel="Level1" Style="{StaticResource PageTitleStyle}" Text="Groups" />
+            <TextBox
+                x:Name="SearchBox"
+                AutomationProperties.Name="Search groups"
+                IsSpellCheckEnabled="False"
+                IsTextPredictionEnabled="False"
+                PlaceholderText="Group name"
+                Text="{x:Bind Groups.Query, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                VerticalAlignment="Center"
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SubtitleTextBlockStyle}"
+                Text="{x:Bind Groups.Heading, Mode=OneWay}"
+                TextTrimming="CharacterEllipsis" />
+            <ProgressRing
+                Grid.Column="1"
+                Width="16"
+                Height="16"
+                IsActive="{x:Bind Groups.IsBusy, Mode=OneWay}" />
+            <Button
+                Grid.Column="2"
+                AutomationProperties.Name="Refresh groups"
+                Command="{x:Bind Groups.RefreshCommand}"
+                ToolTipService.ToolTip="Refresh (F5)">
+                <FontIcon AutomationProperties.AccessibilityView="Raw" FontSize="14" Glyph="&#xE72C;" />
+            </Button>
+        </Grid>
+
+        <ListView
+            x:Name="GroupList"
+            Grid.Row="2"
+            Margin="-12,0"
+            AutomationProperties.Name="Groups"
+            IsItemClickEnabled="True"
+            ItemClick="Group_ItemClick"
+            ItemContainerStyle="{StaticResource NavigableListItemStyle}"
+            ItemsSource="{x:Bind Groups.Items}"
+            SelectionMode="None">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="domain:DirectoryGroup">
+                    <controls:GroupRow Group="{x:Bind}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.Footer>
+                <StackPanel Padding="12,8,12,24" Spacing="8">
+                    <TextBlock
+                        Style="{StaticResource BodyTextBlockStyle}"
+                        Text="{x:Bind Groups.LoadMoreError, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind local:Ui.Visible(Groups.HasLoadMoreError), Mode=OneWay}" />
+                    <Button
+                        Command="{x:Bind Groups.LoadMoreCommand}"
+                        Content="Load more groups"
+                        Visibility="{x:Bind local:Ui.Visible(Groups.CanLoadMore), Mode=OneWay}" />
+                    <StackPanel Orientation="Horizontal" Spacing="10" Visibility="{x:Bind local:Ui.Visible(Groups.IsLoadingMore), Mode=OneWay}">
+                        <ProgressRing Width="16" Height="16" IsActive="{x:Bind Groups.IsLoadingMore, Mode=OneWay}" />
+                        <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="Loading more…" />
+                    </StackPanel>
+                </StackPanel>
+            </ListView.Footer>
+        </ListView>
+
+        <controls:ListStatus
+            Grid.Row="2"
+            VerticalAlignment="Top"
+            NotFoundText="{x:Bind Groups.NotFoundText, Mode=OneWay}"
+            RetryCommand="{x:Bind Groups.RefreshCommand}"
+            State="{x:Bind Groups.State, Mode=OneWay}"
+            Subject="groups" />
+    </Grid>
+</Page>

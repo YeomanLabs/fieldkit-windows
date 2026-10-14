@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A person's groups and assignments (a device shows them in a tab instead). -->
+<Page
+    x:Class="FieldKit.App.Views.AssignmentsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FieldKit.App.Views"
+    Background="Transparent">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Padding="36,20,24,8" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="2">
+                <TextBlock AutomationProperties.HeadingLevel="Level1" Style="{StaticResource PageTitleStyle}" Text="Groups and assignments" />
+                <TextBlock x:Name="SubjectText" IsTextSelectionEnabled="True" Style="{StaticResource SecondaryTextStyle}" />
+            </StackPanel>
+            <CommandBar Grid.Column="1" VerticalAlignment="Center" Background="Transparent" DefaultLabelPosition="Right">
+                <AppBarButton Click="Refresh_Click" Label="Refresh" ToolTipService.ToolTip="Refresh (F5)">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE72C;" />
+                    </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F5" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+            </CommandBar>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1">
+            <Grid Padding="36,8,36,36">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MaxWidth="900" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <local:AssignmentsView x:Name="Assignments" GroupInvoked="Assignments_GroupInvoked" />
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Page>

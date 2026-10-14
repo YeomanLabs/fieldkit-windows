@@ -1,0 +1,6 @@
+{
+  "@odata.nextLink": null,
+  "value": [
+    { "id": "s-1", "name": "Edge security baseline", "assignments": [ { "target": { "@odata.type": "#microsoft.graph.groupAssignmentTarget", "groupId": "g-laptops" } } ] }
+  ]
+}
