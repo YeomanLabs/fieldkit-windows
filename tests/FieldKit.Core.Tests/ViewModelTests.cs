@@ -150,6 +150,38 @@ public sealed class ViewModelTests : IDisposable
         Assert.Equal("Sign in to continue.", failed.Message);
     }
 
+    [Fact]
+    public async Task RefreshSignsInAgainWhenWindowsNeedsTheUser()
+    {
+        // A permission newly added to the app registration: the silent refresh wants the user.
+        var auth = new FakeAuthProvider
+        {
+            ScopesError = new AuthException(AuthErrorKind.InteractionRequired),
+            InteractiveScopes = ["https://graph.microsoft.com/User.Read", "https://graph.microsoft.com/DeviceManagementManagedDevices.ReadWrite.All"],
+        };
+        var permissions = new PermissionsViewModel(auth);
+        await permissions.RefreshCommand.ExecuteAsync(null);
+
+        Assert.Equal(1, auth.InteractiveRequests);
+        Assert.Equal(PermissionsState.Loaded, permissions.State);
+        Assert.True(permissions.Rows.Single(row => row.Permission.Name == "DeviceManagementManagedDevices.Read.All").IsGranted);
+        Assert.NotNull(permissions.RefreshedAt);
+
+        // Opening the page never prompts; only Refresh sign-in does.
+        var opened = new PermissionsViewModel(auth);
+        await opened.LoadAsync();
+        Assert.Equal((PermissionsState.Failed, 1), (opened.State, auth.InteractiveRequests));
+
+        // Cancelling the prompt, or another failure, says so; a plain error doesn't prompt at all.
+        auth.InteractiveError = new AuthException(AuthErrorKind.Cancelled);
+        await permissions.RefreshCommand.ExecuteAsync(null);
+        Assert.Equal((PermissionsState.Failed, "Sign-in was cancelled."), (permissions.State, permissions.Message));
+
+        var offline = new FakeAuthProvider { ScopesError = new AuthException(AuthErrorKind.Network) };
+        await new PermissionsViewModel(offline).RefreshCommand.ExecuteAsync(null);
+        Assert.Equal(0, offline.InteractiveRequests);
+    }
+
     private LookupViewModel Lookup(ILocalDeviceInfo? device = null) =>
         new(new AppSession(_store, _ => new FakeAuthProvider()), _store, device ?? new FakeDeviceInfo("5CG1234XYZ"));
 

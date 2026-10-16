@@ -61,6 +61,6 @@ public sealed partial class SettingsPage : Page
             DefaultButton = ContentDialogButton.Close,
             XamlRoot = XamlRoot,
         };
-        return await dialog.ShowAsync() == ContentDialogResult.Primary;
+        return await dialog.ShowThemedAsync() == ContentDialogResult.Primary;
     }
 }

@@ -82,6 +82,22 @@ public sealed class GraphClientTests
     }
 
     [Fact]
+    public async Task AForbiddenCallStaysForbiddenWhenTheRefreshNeedsTheUser()
+    {
+        // A permission was added to the app registration: the cached token works, a forced refresh
+        // wants interactive sign-in. That's a 403 to explain, not a reason to sign out.
+        _tokens.RefreshError = new AuthException(AuthErrorKind.InteractionRequired);
+        var body = Fixture.Data("error_forbidden");
+        var transport = new ScriptedTransport(Reply.Status(403, body));
+        await Fails(() => Client(transport).SendAsync(Request), GraphErrorKind.Forbidden);
+        Assert.Equal([false, true], _tokens.Requests);
+        Assert.Single(transport.Sent);
+
+        // A 401 still sends to sign-in when the refresh can't happen.
+        await Fails(() => Client(new ScriptedTransport(Reply.Status(401))).SendAsync(Request), GraphErrorKind.Unauthorized);
+    }
+
+    [Fact]
     public async Task ForbiddenThenGrantedAfterRefresh()
     {
         // An admin granted the permission after the cached token was issued.

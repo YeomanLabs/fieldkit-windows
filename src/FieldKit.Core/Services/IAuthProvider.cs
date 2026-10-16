@@ -19,4 +19,11 @@ public interface IAuthProvider : ITokenProvider
     /// a new token, picking up consent granted since sign-in.
     /// </summary>
     Task<IReadOnlyList<string>> GrantedScopesAsync(bool forceRefresh, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// A new token through Microsoft's sign-in prompt, for when a silent refresh can't do it
+    /// (a permission newly added to the app registration, MFA, Conditional Access). The prompt
+    /// shows only what Windows needs; the signed-in account is used when there is one.
+    /// </summary>
+    Task<IReadOnlyList<string>> GrantedScopesInteractiveAsync(CancellationToken cancellationToken = default);
 }

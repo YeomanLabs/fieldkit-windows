@@ -154,7 +154,7 @@
                     <ColumnDefinition Width="*" MaxWidth="900" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <local:InstallStatusView x:Name="InstallStatus" />
+                <local:InstallStatusView x:Name="InstallStatus" AppInvoked="InstallStatus_AppInvoked" />
             </Grid>
         </ScrollViewer>
 

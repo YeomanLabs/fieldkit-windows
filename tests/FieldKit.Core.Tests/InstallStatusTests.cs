@@ -142,8 +142,9 @@ public sealed class InstallStatusTests
         Assert.StartsWith("0x87D1041C · The app wasn't detected", model.AppList[0].ErrorText, StringComparison.Ordinal);
         Assert.Equal("The application was not detected after installation completed successfully", model.AppList[0].Detail);
         Assert.Equal("Microsoft Teams", model.AppList[1].Name);
-        Assert.Equal("1 failed · 1 pending · 3 installed · 1 uninstalled · 1 available", model.AppSummary);
-        Assert.Equal("Not installed (available)", model.AppList[^1].StateText);
+        Assert.Equal("1 failed · 1 pending · 3 installed · 1 uninstalled · 1 available · 1 not applicable", model.AppSummary);
+        Assert.Equal("Not installed (available)", model.AppList[^2].StateText);
+        Assert.Equal(("Contoso Field Tools 2.1", "Not applicable"), (model.AppList[^1].Name, model.AppList[^1].StateText));
         Assert.False(model.HasFailureNote);
 
         Assert.Equal(("Microsoft Edge settings", "Conflict"), (model.ConfigurationList[0].Name, model.ConfigurationList[0].StateText));

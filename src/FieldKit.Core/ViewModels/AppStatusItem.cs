@@ -33,5 +33,17 @@ public sealed record AppStatusItem(AppInstallStatus App, string When)
 
     public bool HasDetail => Detail.Length > 0;
 
+    /// <summary>The link to "Why didn't it install?", worded for the problem; empty when there's none to explain.</summary>
+    public string WhyText => App.Outcome switch
+    {
+        AppInstallOutcome.Failed => App.State == AppInstallState.UninstallFailed ? "Why didn't this uninstall?" : "Why didn't this install?",
+        AppInstallOutcome.NotApplicable => "Why doesn't this apply?",
+        AppInstallOutcome.Missing when App.Intent == AppIntent.RequiredUninstall => "Why is this still installed?",
+        AppInstallOutcome.Pending or AppInstallOutcome.NoStatus or AppInstallOutcome.Missing => "Why hasn't this installed yet?",
+        _ => "",
+    };
+
+    public bool HasWhy => WhyText.Length > 0;
+
     public string AutomationName => DeviceText.Join(". ", $"{Name}: {StateText}", Subtitle, ErrorText, Detail);
 }

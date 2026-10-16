@@ -45,6 +45,32 @@ public sealed partial class MainWindow : Window
     /// <summary>The window handle, for MSAL's broker prompt.</summary>
     public IntPtr Handle => WindowNative.GetWindowHandle(this);
 
+    /// <summary>
+    /// Light, dark or Windows' setting, for the page and the title bar's caption buttons. Pages
+    /// pick it up at once.
+    /// </summary>
+    internal void ApplyTheme(Core.Domain.AppTheme theme)
+    {
+        if (Content is FrameworkElement root)
+        {
+            root.RequestedTheme = theme switch
+            {
+                Core.Domain.AppTheme.Light => ElementTheme.Light,
+                Core.Domain.AppTheme.Dark => ElementTheme.Dark,
+                _ => ElementTheme.Default,
+            };
+        }
+        AppWindow.TitleBar.PreferredTheme = theme switch
+        {
+            Core.Domain.AppTheme.Light => TitleBarTheme.Light,
+            Core.Domain.AppTheme.Dark => TitleBarTheme.Dark,
+            _ => TitleBarTheme.UseDefaultAppMode,
+        };
+    }
+
+    /// <summary>The theme pages are drawn in now, for dialogs (which sit outside the page tree).</summary>
+    internal ElementTheme ActualTheme => Content is FrameworkElement root ? root.ActualTheme : ElementTheme.Default;
+
     /// <summary>Called by the shell as its page history changes.</summary>
     internal void SetBackButton(bool visible) => AppTitleBar.IsBackButtonVisible = visible;
 

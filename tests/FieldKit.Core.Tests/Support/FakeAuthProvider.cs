@@ -45,6 +45,20 @@ internal sealed class FakeAuthProvider : IAuthProvider
         return ScopesError is null ? Task.FromResult(Scopes) : Task.FromException<IReadOnlyList<string>>(ScopesError);
     }
 
+    /// <summary>What the sign-in prompt gives; null leaves the silent scopes' answer.</summary>
+    public IReadOnlyList<string>? InteractiveScopes { get; set; }
+
+    public AuthException? InteractiveError { get; set; }
+
+    public int InteractiveRequests { get; private set; }
+
+    public Task<IReadOnlyList<string>> GrantedScopesInteractiveAsync(CancellationToken cancellationToken = default)
+    {
+        InteractiveRequests++;
+        if (InteractiveError is not null) return Task.FromException<IReadOnlyList<string>>(InteractiveError);
+        return Task.FromResult(InteractiveScopes ?? Scopes);
+    }
+
     public Task<string> GetAccessTokenAsync(bool forceRefresh, CancellationToken cancellationToken = default) =>
         Task.FromResult("token");
 }

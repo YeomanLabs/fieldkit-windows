@@ -114,6 +114,14 @@ public sealed partial class DevicePage : Page
 
     private void Assignments_GroupInvoked(object? sender, DirectoryGroup group) => Frame.Navigate(typeof(GroupPage), group);
 
+    /// <summary>"Why didn't it install?" for the app, with the tab's other apps for its dependencies.</summary>
+    private void InstallStatus_AppInvoked(object? sender, AppStatusItem item)
+    {
+        if (_installStatus is not { } status) return;
+        var apps = status.AppList.Select(app => app.App).ToList();
+        Frame.Navigate(typeof(AppInstallDetailPage), new AppInstallSubject(status.Device, ViewModel.EntraObjectId, item.App, apps));
+    }
+
     private async void Sync_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.SelectedIntune is { } device) await Actions.RunAsync(DeviceAction.Sync, device);
@@ -122,7 +130,7 @@ public sealed partial class DevicePage : Page
     private async void InstallApp_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.SelectedIntune is not { } device) return;
-        await new InstallAppDialog(device, ViewModel.EntraObjectId) { XamlRoot = XamlRoot }.ShowAsync();
+        await new InstallAppDialog(device, ViewModel.EntraObjectId) { XamlRoot = XamlRoot }.ShowThemedAsync();
     }
 
     private async void Restart_Click(object sender, RoutedEventArgs e)
@@ -143,7 +151,7 @@ public sealed partial class DevicePage : Page
     {
         if (ViewModel.SelectedIntune is not { } device) return;
         var picker = new RemediationPickerDialog(device) { XamlRoot = XamlRoot };
-        await picker.ShowAsync();
+        await picker.ShowThemedAsync();
         if (picker.Picked is not { } script) return;
         if (!await Dialogs.ConfirmAsync(XamlRoot, $"Run {script.Name} on {device.DeviceName}?", "The device runs it the next time it checks in.", "Run now")) return;
         await Actions.RunRemediationAsync(script, device);
@@ -169,7 +177,7 @@ public sealed partial class DevicePage : Page
         if (Actions.Revealed is not { } secrets) return;
         try
         {
-            await new SecretsDialog(secrets, App.Window) { XamlRoot = XamlRoot }.ShowAsync();
+            await new SecretsDialog(secrets, App.Window) { XamlRoot = XamlRoot }.ShowThemedAsync();
         }
         finally
         {
@@ -183,7 +191,7 @@ public sealed partial class DevicePage : Page
     {
         if (ViewModel.EntraDevice is not { } device) return;
         var dialog = new ExtensionAttributesDialog(device) { XamlRoot = XamlRoot };
-        await dialog.ShowAsync();
+        await dialog.ShowThemedAsync();
         if (dialog.ViewModel.Saved is { } saved) ViewModel.ExtensionAttributesSaved(saved);
     }
 
@@ -191,7 +199,7 @@ public sealed partial class DevicePage : Page
     {
         if (sender is not Button { Tag: AutopilotDevice record }) return;
         var dialog = new AutopilotEditDialog(record) { XamlRoot = XamlRoot };
-        await dialog.ShowAsync();
+        await dialog.ShowThemedAsync();
         if (dialog.Saved) await ViewModel.AutopilotSavedAsync();
     }
 

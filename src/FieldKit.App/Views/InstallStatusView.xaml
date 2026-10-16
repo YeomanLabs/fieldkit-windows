@@ -12,7 +12,7 @@
     <StackPanel Spacing="16">
         <TextBlock
             Style="{StaticResource SecondaryTextStyle}"
-            Text="What the device reported back to Intune: whether each app installed, and how each configuration profile or policy applied. After a change, Intune can take a while to catch up; Sync the device to hurry it along." />
+            Text="What the device reported back to Intune: whether each app installed, and how each configuration profile or policy applied. An app that didn't install has a link to why. After a change, Intune can take a while to catch up; Sync the device to hurry it along." />
 
         <controls:SectionCard
             Header="Apps"
@@ -25,12 +25,12 @@
                 <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.AppList, Mode=OneWay}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:AppStatusItem">
-                            <Grid Padding="0,7" AutomationProperties.Name="{x:Bind AutomationName}" ColumnSpacing="16">
+                            <Grid Padding="0,7" ColumnSpacing="16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Spacing="1">
+                                <StackPanel AutomationProperties.Name="{x:Bind AutomationName}" Spacing="1">
                                     <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind Name}" TextWrapping="Wrap" />
                                     <TextBlock Style="{StaticResource CaptionSecondaryStyle}" Text="{x:Bind Subtitle}" />
                                     <controls:ToneText Text="{x:Bind ErrorText}" Tone="Critical" Visibility="{x:Bind local:Ui.Visible(HasError)}" />
@@ -40,6 +40,14 @@
                                         Text="{x:Bind Detail}"
                                         TextWrapping="Wrap"
                                         Visibility="{x:Bind local:Ui.Visible(HasDetail)}" />
+                                    <!-- Problems get a link to "Why didn't it install?"; installed and available apps don't need one. -->
+                                    <HyperlinkButton
+                                        Margin="0,2,0,0"
+                                        Padding="0"
+                                        AutomationProperties.Name="{x:Bind local:Ui.WhyLinkName(Name, WhyText)}"
+                                        Click="Why_Click"
+                                        Content="{x:Bind WhyText}"
+                                        Visibility="{x:Bind local:Ui.Visible(HasWhy)}" />
                                 </StackPanel>
                                 <controls:ToneText
                                     Grid.Column="1"

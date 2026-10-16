@@ -31,6 +31,8 @@ namespace FieldKit.Core.Graph;
 [JsonSerializable(typeof(GraphCollection<DetectedAppDto>))]
 [JsonSerializable(typeof(GraphCollection<SignInDto>))]
 [JsonSerializable(typeof(MobileAppIntentAndStateDto))]
+[JsonSerializable(typeof(MobileAppDto))]
+[JsonSerializable(typeof(AssignmentFilterDto))]
 internal sealed partial class GraphJsonContext : JsonSerializerContext
 {
 }

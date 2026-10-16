@@ -42,11 +42,18 @@ public sealed class InstallStatusLookup(IGraphClient client)
     /// be filtered by device, so it's narrowed to failed installs (and the device name, as a
     /// search) and this device's row is picked out by ID. Null when Intune has no such row.
     /// </summary>
-    public async Task<AppInstallFailure?> FailureAsync(AppInstallStatus app, IntuneDevice device, CancellationToken cancellationToken = default)
+    public Task<AppInstallFailure?> FailureAsync(AppInstallStatus app, IntuneDevice device, CancellationToken cancellationToken = default) =>
+        ReportRowAsync(app.AppId, device, app.State, cancellationToken);
+
+    /// <summary>
+    /// This device's row in the app's install report, whatever its state (or only in
+    /// <paramref name="state"/>): error code, Intune's words and when. Null when there's no row.
+    /// </summary>
+    public async Task<AppInstallFailure?> ReportRowAsync(string appId, IntuneDevice device, AppInstallState? state = null, CancellationToken cancellationToken = default)
     {
-        var body = ReportBody(
-            $"(ApplicationId eq {ODataLiteral.String(app.AppId)}) and (InstallState eq '{app.State.ReportCode().ToString(CultureInfo.InvariantCulture)}')",
-            device.DeviceName, 0, FailureRows);
+        var filter = $"(ApplicationId eq {ODataLiteral.String(appId)})";
+        if (state is { } only) filter += $" and (InstallState eq '{only.ReportCode().ToString(CultureInfo.InvariantCulture)}')";
+        var body = ReportBody(filter, device.DeviceName, 0, FailureRows);
         var table = await client.PostReportAsync(
             GraphRequest.PostJson("deviceManagement/reports/retrieveDeviceAppInstallationStatusReport", body, GraphVersion.Beta), cancellationToken).ConfigureAwait(false);
         for (var row = 0; row < table.Count; row++)

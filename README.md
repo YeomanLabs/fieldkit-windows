@@ -13,6 +13,9 @@ Open it and your Intune devices are already listed, A–Z. Type to filter, scan 
 - **Groups and assignments**: which apps, profiles, policies, scripts and remediations reach a device (through its groups and its primary user's), including exclusions.
 - **Hardware, storage and apps**: storage, memory, TPM, battery health, network, Microsoft Defender status and every detected app.
 - **Install status**: did it actually install? Every app Intune targets at the device or its user, failed ones first with the error code and what it means, plus how each configuration profile and policy applied, errors and conflicts first.
+- **Why didn't it install?** Under every app that didn't install, a link opens a plain-English answer, likely causes first: the detection rule that didn't match, the installer's exit code against the app's return codes, a requirement the device fails, an assignment filter, a dependency that failed, or a device that hasn't checked in. Below the causes: how the app reaches the device (which group, which filter), its requirements checked against the device, its detection rules, and its dependencies and supersedence.
+- **Device logs**: run **Collect diagnostics** on the device in Intune (FieldKit links to it), download the zip, and open it on the app's page (or open an AppWorkload.log). FieldKit reads what the Intune Management Extension actually did with the app (applicability, detection before and after, the installer's exit code, download trouble, errors) and updates the causes to match.
+- **Light or dark**: follow Windows, or pick one in **Settings → Appearance**.
 - **Act on it**: sync, restart, retire, run a remediation, show the LAPS password or BitLocker keys, and install an app by adding the device or its user to the app's Required group. Restart, retire, remediations and recovery secrets ask for **Windows Hello** first.
 - **Autopilot**: edit a device's group tag and assigned user, or tag box after box (or a pasted list) with **Pre-stage**.
 - **Extension attributes**: see and edit a device's Entra extensionAttribute1–15, the ones dynamic groups and assignment filters use.
@@ -25,7 +28,7 @@ Open it and your Intune devices are already listed, A–Z. Type to filter, scan 
 | ![Groups and assignments](screenshots/assignments.png) | ![Hardware, storage and apps](screenshots/inventory.png) |
 | ![Site walk](screenshots/site-walk.png) | ![Devices](screenshots/devices.png) |
 | ![A person's sign-ins, problems first](screenshots/person.png) | ![Why was I blocked?](screenshots/sign-in.png) |
-| ![Install status: failed apps first, with the error code](screenshots/install-status.png) | |
+| ![Install status: failed apps first, with the error code](screenshots/install-status.png) | ![Why didn't it install?](screenshots/app-install.png) |
 
 ## Install
 
@@ -39,16 +42,16 @@ Everything FieldKit needs (.NET and the Windows App SDK) is included.
 FieldKit isn't code-signed yet, so the first time you run a downloaded copy Windows SmartScreen may say it "protected your PC". Select **More info → Run anyway**. You can check a download against `SHA256SUMS.txt` in the release:
 
 ```powershell
-Get-FileHash .\FieldKit-1.0.0-x64.msi -Algorithm SHA256
+Get-FileHash .\FieldKit-1.5.0-x64.msi -Algorithm SHA256
 ```
 
 ### Deploy with Intune
 
 Add the MSI as a **Line-of-business app**, or wrap it as a **Win32 app** with:
 
-- Install: `msiexec /i FieldKit-1.0.0-x64.msi /qn`
-- Uninstall: `msiexec /x FieldKit-1.0.0-x64.msi /qn` (or by product code)
-- Detection: MSI product code, or the file `%ProgramFiles%\FieldKit\FieldKit.exe` at version 1.0.0 or later.
+- Install: `msiexec /i FieldKit-1.5.0-x64.msi /qn`
+- Uninstall: `msiexec /x FieldKit-1.5.0-x64.msi /qn` (or by product code)
+- Detection: MSI product code, or the file `%ProgramFiles%\FieldKit\FieldKit.exe` at version 1.5.0 or later.
 
 New versions upgrade in place. If FieldKit is open, the installer closes it first (from 1.4.3), so an upgrade doesn't wait on a running copy.
 
@@ -82,14 +85,14 @@ FieldKit signs in with each engineer's own work account and can only do what the
 
    Directory.AccessAsUser.All is only needed to edit extension attributes, and is the only permission Microsoft offers for changing a device as a signed-in user. It lets FieldKit do what your own Entra role allows, so leave it out if you don't need that feature. Editing also needs the Intune Administrator role.
 
-   **Upgrading?** These versions added permissions. Add them, grant admin consent, then in FieldKit open **Settings → Permissions → Refresh sign-in** (consent can take a minute or two to reach new sign-ins):
+   **Upgrading?** These versions added permissions. Add them, grant admin consent, then in FieldKit open **Settings → Permissions → Refresh sign-in**, which asks you to sign in again if Windows needs you to (consent can take a minute or two to reach new sign-ins):
 
    | Version | Added | For |
    |---|---|---|
    | 1.3.0 | AuditLog.Read.All, Policy.Read.ConditionalAccess | Why was I blocked? (sign-in logs and the Conditional Access policies in them) |
    | 1.2.0 | Directory.AccessAsUser.All *(optional)* | Editing device extension attributes |
 
-   Other versions, including 1.4.0's install status, use permissions FieldKit already had.
+   Other versions, including 1.4.0's install status and 1.5.0's "Why didn't it install?", use permissions FieldKit already had.
 
    Until a permission is added, only the feature that needs it is affected; it says which permission and role it's missing. **Settings → Permissions** shows what the current sign-in has.
 
@@ -101,7 +104,8 @@ The permissions above say what FieldKit may ask for; each engineer's own roles d
 
 | Feature | Role (or a custom role with the same rights) |
 |---|---|
-| Look up devices, compliance, groups, assignments and install status | Any Intune role that can read devices, policies and apps, such as Read Only Operator |
+| Look up devices, compliance, groups, assignments, install status and why an app didn't install | Any Intune role that can read devices, policies and apps, such as Read Only Operator |
+| Device logs for an app's page | Collecting them happens in the Intune admin center: an Intune role with the Collect diagnostics remote task |
 | Sync, restart, retire | Intune role with remote tasks, such as Help Desk Operator |
 | Run a remediation | Intune role that can run remediations, plus Windows licences that include Remediations |
 | Autopilot group tag and user, Pre-stage | Intune role that can update Autopilot devices, such as Policy and Profile Manager |
@@ -119,6 +123,8 @@ FieldKit is a public client: no client secret or certificate. It signs in throug
 ## Privacy
 
 FieldKit collects nothing. It talks only to Microsoft sign-in and Microsoft Graph, as you. Sign-in tokens stay with Windows. On the PC it keeps your tenant setup, settings, recent lookups and site walks in `%LOCALAPPDATA%\FieldKit`; **Settings → Clear all local data** removes them.
+
+Device logs are read only from files you open, in memory, and never saved or sent anywhere. FieldKit never connects to a device itself: no admin share, no remote session.
 
 LAPS passwords and BitLocker keys are shown only after Windows Hello, masked until you select Show, hidden when FieldKit loses focus, kept out of screenshots and screen sharing while shown, and closed after two minutes. Copying one keeps it out of clipboard history and cloud clipboard, and clears it after 60 seconds.
 

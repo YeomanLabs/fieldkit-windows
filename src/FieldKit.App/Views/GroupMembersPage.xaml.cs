@@ -96,7 +96,7 @@ public sealed partial class GroupMembersPage : Page
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Close,
         };
-        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+        if (await dialog.ShowThemedAsync() != ContentDialogResult.Primary) return;
         await ViewModel.RemoveAsync(member);
     }
 

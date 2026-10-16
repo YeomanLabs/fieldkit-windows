@@ -37,6 +37,9 @@ public sealed class DemoAuthProvider : IAuthProvider
         return Task.FromResult(scopes);
     }
 
+    public Task<IReadOnlyList<string>> GrantedScopesInteractiveAsync(CancellationToken cancellationToken = default) =>
+        GrantedScopesAsync(forceRefresh: true, cancellationToken);
+
     public Task<string> GetAccessTokenAsync(bool forceRefresh, CancellationToken cancellationToken = default) =>
         _signedIn
             ? Task.FromResult("demo-token")

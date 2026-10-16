@@ -18,6 +18,13 @@ public static class DateText
         return $"{local.ToString(DatePattern(format), format)} at {local.ToString(format.DateTimeFormat.ShortTimePattern, format)}";
     }
 
+    /// <summary>"Oct 16, 2026 at 6:12 AM (the device's clock)": a time from a device's log, which has no time zone.</summary>
+    public static string DeviceClock(DateTime at, CultureInfo? culture = null)
+    {
+        var format = culture ?? CultureInfo.CurrentCulture;
+        return $"{at.ToString(DatePattern(format), format)} at {at.ToString(format.DateTimeFormat.ShortTimePattern, format)} (the device's clock)";
+    }
+
     /// <summary>The date alone, e.g. for telling duplicate records apart.</summary>
     public static string ShortDate(DateTimeOffset date, CultureInfo? culture = null, TimeZoneInfo? zone = null)
     {

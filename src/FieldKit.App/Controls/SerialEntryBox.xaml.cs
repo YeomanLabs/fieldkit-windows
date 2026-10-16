@@ -1,3 +1,4 @@
+using FieldKit.App.Views;
 using FieldKit.Core.Domain;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
@@ -94,7 +95,7 @@ public sealed partial class SerialEntryBox : UserControl
             DefaultButton = ContentDialogButton.Primary,
         };
         dialog.Opened += (_, _) => text.Focus(FocusState.Programmatic);
-        if (await dialog.ShowAsync() == ContentDialogResult.Primary && text.Text.Trim().Length > 0)
+        if (await dialog.ShowThemedAsync() == ContentDialogResult.Primary && text.Text.Trim().Length > 0)
         {
             ListPasted?.Invoke(this, text.Text);
         }

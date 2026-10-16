@@ -22,6 +22,7 @@ public static class GraphFeatureExtensions
             GraphFeature.SignIns => "AuditLog.Read.All",
             GraphFeature.AppInstallStatus => "DeviceManagementApps.Read.All",
             GraphFeature.ConfigurationStatus => "DeviceManagementConfiguration.Read.All",
+            GraphFeature.AssignmentFilters => "DeviceManagementConfiguration.Read.All",
             _ => throw new ArgumentOutOfRangeException(nameof(feature)),
         };
 
@@ -45,6 +46,7 @@ public static class GraphFeatureExtensions
             GraphFeature.SignIns => "an Entra role that can read sign-in logs, such as Reports Reader, Security Reader or Global Reader",
             GraphFeature.AppInstallStatus => "an Intune role that can read apps and their install status, such as Read Only Operator",
             GraphFeature.ConfigurationStatus => "an Intune role that can read device configurations, such as Read Only Operator",
+            GraphFeature.AssignmentFilters => "an Intune role that can read assignment filters, such as Read Only Operator",
             _ => throw new ArgumentOutOfRangeException(nameof(feature)),
         };
 

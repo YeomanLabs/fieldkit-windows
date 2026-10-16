@@ -35,17 +35,21 @@ public partial class App : Application
             DataFolder = Path.GetDirectoryName(DatabasePath())!,
             Version = AppChannel.Version,
             OwnerVerifier = new WindowsHelloVerifier(() => window?.Handle ?? IntPtr.Zero),
+            DeviceLogs = new Core.DeviceLogs.DeviceLogReader(),
             Clipboard = new SecureClipboard(Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread()),
         };
 
         _window = window = new MainWindow();
-        // --theme dark|light overrides the system theme (screenshots, and checking both without changing Windows).
-        var theme = Array.IndexOf(arguments, "--theme") is var index and >= 0 && index + 1 < arguments.Length ? arguments[index + 1] : null;
-        if (_window.Content is FrameworkElement root && theme is not null)
+        // Settings → Appearance, live. --theme dark|light overrides it for this run (screenshots, and
+        // checking both without changing anything).
+        var settings = AppServices.Current.Settings;
+        var forced = Array.IndexOf(arguments, "--theme") is var index and >= 0 && index + 1 < arguments.Length
+            && Enum.TryParse<Core.Domain.AppTheme>(arguments[index + 1], ignoreCase: true, out var argument) ? argument : (Core.Domain.AppTheme?)null;
+        _window.ApplyTheme(forced ?? settings.Theme);
+        settings.PropertyChanged += (_, e) =>
         {
-            if (string.Equals(theme, "dark", StringComparison.OrdinalIgnoreCase)) root.RequestedTheme = ElementTheme.Dark;
-            else if (string.Equals(theme, "light", StringComparison.OrdinalIgnoreCase)) root.RequestedTheme = ElementTheme.Light;
-        }
+            if (e.PropertyName == nameof(SettingsStore.Theme)) _window.ApplyTheme(settings.Theme);
+        };
         _window.Activate();
         await session.RestoreAsync();
     }

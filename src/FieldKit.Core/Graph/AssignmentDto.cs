@@ -15,11 +15,29 @@ internal sealed class AssignmentDto
         public string? Type { get; init; }
 
         public string? GroupId { get; init; }
+
+        /// <summary>Beta only; v1.0 leaves filters out.</summary>
+        public string? DeviceAndAppManagementAssignmentFilterId { get; init; }
+
+        /// <summary>"include", "exclude" or "none" (beta only).</summary>
+        public string? DeviceAndAppManagementAssignmentFilterType { get; init; }
     }
 
     public string? Intent { get; init; }
 
     public TargetDto? Target { get; init; }
+
+    /// <summary>An app's assignment with its filter, for "Why didn't it install?".</summary>
+    public AppAssignment ToAppAssignment()
+    {
+        var mode = Target?.DeviceAndAppManagementAssignmentFilterType?.ToLowerInvariant() switch
+        {
+            "include" => AssignmentFilterMode.Include,
+            "exclude" => AssignmentFilterMode.Exclude,
+            _ => AssignmentFilterMode.None,
+        };
+        return new AppAssignment(ToDomain().Target, Intent ?? "", Target?.DeviceAndAppManagementAssignmentFilterId.NonEmpty(), mode);
+    }
 
     public AssignmentEntry ToDomain()
     {

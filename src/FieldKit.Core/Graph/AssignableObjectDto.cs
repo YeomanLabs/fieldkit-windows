@@ -39,24 +39,6 @@ internal sealed class AssignableObjectDto
         {
             return string.IsNullOrEmpty(Publisher) ? "" : Publisher;
         }
-        if (Type is null) return "";
-        var raw = Type.Replace("#microsoft.graph.", "", StringComparison.Ordinal);
-        return raw switch
-        {
-            "win32LobApp" => "Windows app (Win32)",
-            "winGetApp" => "WinGet app",
-            "windowsMicrosoftEdgeApp" => "Microsoft Edge",
-            "officeSuiteApp" => "Microsoft 365 Apps",
-            "windowsMobileMSI" => "Windows MSI",
-            "windowsUniversalAppX" or "windowsAppX" => "Windows AppX",
-            "microsoftStoreForBusinessApp" or "windowsStoreApp" => "Microsoft Store",
-            "iosStoreApp" or "iosVppApp" => "iOS store app",
-            "iosLobApp" => "iOS line-of-business",
-            "managedIOSStoreApp" or "managedAndroidStoreApp" => "Managed store app",
-            "androidManagedStoreApp" or "androidStoreApp" => "Android store app",
-            "macOSLobApp" or "macOSDmgApp" or "macOSPkgApp" => "macOS app",
-            "webApp" => "Web link",
-            _ => raw,
-        };
+        return Type is null ? "" : AppTypeNames.Label(Type.Replace("#microsoft.graph.", "", StringComparison.Ordinal));
     }
 }

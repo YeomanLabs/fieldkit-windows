@@ -9,6 +9,16 @@ namespace FieldKit.App.Views;
 /// <summary>Confirmations shared by pages: a yes/no question, and retire's typed device name.</summary>
 internal static class Dialogs
 {
+    /// <summary>
+    /// Shows a dialog in the theme the pages are in (Settings → Appearance). Dialogs sit outside
+    /// the page tree, so on their own they'd follow Windows instead. Every dialog opens this way.
+    /// </summary>
+    public static Windows.Foundation.IAsyncOperation<ContentDialogResult> ShowThemedAsync(this ContentDialog dialog)
+    {
+        dialog.RequestedTheme = App.Window.ActualTheme;
+        return dialog.ShowAsync();
+    }
+
     /// <summary>Cancel is the default, so Enter never confirms something destructive by accident.</summary>
     public static async Task<bool> ConfirmAsync(XamlRoot root, string title, string message, string confirm)
     {
@@ -21,7 +31,7 @@ internal static class Dialogs
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Close,
         };
-        return await dialog.ShowAsync() == ContentDialogResult.Primary;
+        return await dialog.ShowThemedAsync() == ContentDialogResult.Primary;
     }
 
     /// <summary>Retire is irreversible, so the device name has to be typed back before Windows Hello (ports <c>RetireConfirmSheet</c>).</summary>
@@ -51,6 +61,6 @@ internal static class Dialogs
         };
         typed.TextChanged += (_, _) => dialog.IsPrimaryButtonEnabled = DeviceActionsViewModel.RetireNameMatches(typed.Text, deviceName);
         dialog.Opened += (_, _) => typed.Focus(FocusState.Programmatic);
-        return await dialog.ShowAsync() == ContentDialogResult.Primary;
+        return await dialog.ShowThemedAsync() == ContentDialogResult.Primary;
     }
 }

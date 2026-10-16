@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Why didn't it install?": one app on one device explained (Windows only, 2026-10-16). -->
+<Page
+    x:Class="FieldKit.App.Views.AppInstallDetailPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:FieldKit.App.Controls"
+    xmlns:local="using:FieldKit.App.Views"
+    xmlns:vm="using:FieldKit.Core.ViewModels"
+    Background="Transparent">
+
+    <Page.Resources>
+        <DataTemplate x:Key="InfoRowTemplate" x:DataType="vm:InfoRow">
+            <controls:DetailRow Margin="0,4" Label="{x:Bind Label}" Tone="{x:Bind local:Ui.InfoRowTone(Tone)}" Value="{x:Bind Value}" />
+        </DataTemplate>
+        <DataTemplate x:Key="BulletTemplate" x:DataType="x:String">
+            <Grid Margin="0,2" ColumnSpacing="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock AutomationProperties.AccessibilityView="Raw" Style="{StaticResource SecondaryTextStyle}" Text="•" />
+                <TextBlock Grid.Column="1" IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind}" TextWrapping="Wrap" />
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Padding="36,20,24,0" Spacing="2">
+            <controls:ToneText IsSelectable="False" Text="{x:Bind ViewModel.VerdictLabel, Mode=OneWay}" Tone="{x:Bind local:Ui.InfoRowTone(ViewModel.VerdictTone), Mode=OneWay}" />
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                IsTextSelectionEnabled="True"
+                Style="{StaticResource PageTitleStyle}"
+                Text="{x:Bind ViewModel.Title, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource SecondaryTextStyle}" Text="{x:Bind ViewModel.Subtitle, Mode=OneWay}" />
+        </StackPanel>
+
+        <CommandBar
+            Grid.Row="1"
+            Margin="24,4,24,0"
+            HorizontalAlignment="Left"
+            Background="Transparent"
+            DefaultLabelPosition="Right">
+            <AppBarButton Click="Refresh_Click" Label="Refresh" ToolTipService.ToolTip="Refresh (F5)">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE72C;" />
+                </AppBarButton.Icon>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="F5" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+        </CommandBar>
+
+        <ScrollViewer Grid.Row="2">
+            <Grid Padding="36,8,36,36">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MaxWidth="900" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="16">
+                    <!-- Why, the likely causes in order, and what to check -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="10">
+                            <TextBlock AutomationProperties.HeadingLevel="Level2" Style="{StaticResource CardHeaderStyle}" Text="Why" />
+                            <StackPanel Orientation="Horizontal" Spacing="10" Visibility="{x:Bind local:Ui.Visible(ViewModel.IsWorking), Mode=OneWay}">
+                                <ProgressRing Width="18" Height="18" IsActive="{x:Bind ViewModel.IsWorking, Mode=OneWay}" />
+                                <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="Reading the app's settings, its assignments and Intune's install report…" />
+                            </StackPanel>
+                            <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind ViewModel.Explanation, Mode=OneWay}" TextWrapping="Wrap" />
+                            <StackPanel Spacing="8" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasCauses), Mode=OneWay}">
+                                <TextBlock Margin="0,6,0,0" AutomationProperties.HeadingLevel="Level3" Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.CausesHeading, Mode=OneWay}" />
+                                <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.CauseList, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:AppCauseItem">
+                                            <Grid Margin="0,4" AutomationProperties.Name="{x:Bind AutomationName}" ColumnSpacing="10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock AutomationProperties.AccessibilityView="Raw" Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind NumberText}" />
+                                                <StackPanel Grid.Column="1" Spacing="2">
+                                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                                        <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Title}" TextWrapping="Wrap" />
+                                                        <controls:ToneText VerticalAlignment="Center" IsSelectable="False" Text="{x:Bind Badge}" Tone="{x:Bind local:Ui.InfoRowTone(Tone)}" />
+                                                    </StackPanel>
+                                                    <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind Detail}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                            <StackPanel Spacing="6" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasChecks), Mode=OneWay}">
+                                <TextBlock Margin="0,6,0,0" AutomationProperties.HeadingLevel="Level3" Style="{StaticResource BodyStrongTextBlockStyle}" Text="What to check" />
+                                <ItemsControl IsTabStop="False" ItemTemplate="{StaticResource BulletTemplate}" ItemsSource="{x:Bind ViewModel.WhatToCheck, Mode=OneWay}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- What Intune last heard from the device -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="6">
+                            <TextBlock AutomationProperties.HeadingLevel="Level2" Style="{StaticResource CardHeaderStyle}" Text="Install result" />
+                            <ItemsControl IsTabStop="False" ItemTemplate="{StaticResource InfoRowTemplate}" ItemsSource="{x:Bind ViewModel.ResultRows, Mode=OneWay}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- The device's own Intune Management Extension log, from a Collect diagnostics zip or log files -->
+                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind local:Ui.Visible(ViewModel.CanReadLogs), Mode=OneWay}">
+                        <StackPanel Spacing="10">
+                            <TextBlock AutomationProperties.HeadingLevel="Level2" Style="{StaticResource CardHeaderStyle}" Text="Device log" />
+                            <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="{x:Bind ViewModel.LogIntro, Mode=OneWay}" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Button AutomationProperties.Name="Open a diagnostics zip or log" Click="OpenLogs_Click" IsEnabled="{x:Bind ViewModel.IsNotReadingLog, Mode=OneWay}" Style="{StaticResource AccentButtonStyle}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="14" Glyph="&#xE8E5;" />
+                                        <TextBlock Text="Open a diagnostics zip or log…" />
+                                    </StackPanel>
+                                </Button>
+                                <HyperlinkButton Content="Collect diagnostics in Intune" NavigateUri="{x:Bind ViewModel.IntuneDeviceUri, Mode=OneWay}" />
+                                <ProgressRing Width="18" Height="18" IsActive="{x:Bind ViewModel.IsReadingLog, Mode=OneWay}" Visibility="{x:Bind local:Ui.Visible(ViewModel.IsReadingLog), Mode=OneWay}" />
+                            </StackPanel>
+                            <controls:ToneText
+                                Text="{x:Bind ViewModel.LogMessage, Mode=OneWay}"
+                                Tone="Caution"
+                                Visibility="{x:Bind local:Ui.Visible(ViewModel.HasLogMessage), Mode=OneWay}" />
+                            <StackPanel Spacing="6" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasLog), Mode=OneWay}">
+                                <ItemsControl IsTabStop="False" ItemTemplate="{StaticResource InfoRowTemplate}" ItemsSource="{x:Bind ViewModel.LogRows, Mode=OneWay}" />
+                                <Expander
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
+                                    Header="{x:Bind ViewModel.LogExcerptHeader, Mode=OneWay}"
+                                    Visibility="{x:Bind local:Ui.Visible(ViewModel.HasLogExcerpt), Mode=OneWay}">
+                                    <TextBox
+                                        MaxHeight="360"
+                                        AcceptsReturn="True"
+                                        AutomationProperties.Name="Log lines from the last run"
+                                        FontFamily="{StaticResource MonospaceFont}"
+                                        FontSize="12"
+                                        IsReadOnly="True"
+                                        IsSpellCheckEnabled="False"
+                                        ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                        Text="{x:Bind ViewModel.LogExcerpt, Mode=OneWay}"
+                                        TextWrapping="NoWrap" />
+                                </Expander>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Which assignments reach this device -->
+                    <controls:SectionCard
+                        Header="How it's assigned here"
+                        NotFoundText="Intune no longer has this app; it may have been deleted since the device last reported."
+                        RetryCommand="{x:Bind ViewModel.LoadCommand, Mode=OneWay}"
+                        State="{x:Bind ViewModel.Targeting, Mode=OneWay}">
+                        <StackPanel Spacing="6">
+                            <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.TargetList, Mode=OneWay}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:AppTargetItem">
+                                        <Grid Padding="0,5" AutomationProperties.Name="{x:Bind AutomationName}" ColumnSpacing="16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Spacing="1">
+                                                <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind Via}" TextWrapping="Wrap" />
+                                                <TextBlock
+                                                    IsTextSelectionEnabled="True"
+                                                    Style="{StaticResource CaptionSecondaryStyle}"
+                                                    Text="{x:Bind FilterText}"
+                                                    TextWrapping="Wrap"
+                                                    Visibility="{x:Bind local:Ui.Visible(HasFilter)}" />
+                                            </StackPanel>
+                                            <controls:ToneText Grid.Column="1" VerticalAlignment="Top" IsSelectable="False" Text="{x:Bind Intent}" Tone="{x:Bind local:Ui.InfoRowTone(Tone)}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <StackPanel Spacing="4" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasExclusions), Mode=OneWay}">
+                                <TextBlock Margin="0,6,0,0" AutomationProperties.HeadingLevel="Level3" Style="{StaticResource BodyStrongTextBlockStyle}" Text="Excluded through" />
+                                <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.ExclusionList, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:AppTargetItem">
+                                            <TextBlock Padding="0,4" AutomationProperties.Name="{x:Bind AutomationName}" IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind Via}" TextWrapping="Wrap" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                            <TextBlock
+                                Style="{StaticResource SecondaryTextStyle}"
+                                Text="{x:Bind ViewModel.TargetingNote, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind local:Ui.Visible(ViewModel.HasTargetingNote), Mode=OneWay}" />
+                        </StackPanel>
+                    </controls:SectionCard>
+
+                    <!-- Dependencies and supersedence -->
+                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasRelated), Mode=OneWay}">
+                        <StackPanel Spacing="6">
+                            <TextBlock AutomationProperties.HeadingLevel="Level2" Style="{StaticResource CardHeaderStyle}" Text="Related apps" />
+                            <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.RelatedList, Mode=OneWay}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:RelatedAppItem">
+                                        <Grid Padding="0,5" AutomationProperties.Name="{x:Bind AutomationName}" ColumnSpacing="16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind Description}" TextWrapping="Wrap" />
+                                            <controls:ToneText Grid.Column="1" VerticalAlignment="Top" IsSelectable="False" Text="{x:Bind StateText}" Tone="{x:Bind local:Ui.InfoRowTone(Tone)}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Requirements, detection and the package (Win32 apps) -->
+                    <controls:SectionCard
+                        Header="Requirements and detection"
+                        NotFoundText="Intune no longer has this app; it may have been deleted since the device last reported."
+                        RetryCommand="{x:Bind ViewModel.LoadCommand, Mode=OneWay}"
+                        State="{x:Bind ViewModel.SetupState, Mode=OneWay}">
+                        <StackPanel Spacing="6">
+                            <StackPanel Spacing="2" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasRequirements), Mode=OneWay}">
+                                <TextBlock AutomationProperties.HeadingLevel="Level3" Style="{StaticResource BodyStrongTextBlockStyle}" Text="Requirements" />
+                                <ItemsControl IsTabStop="False" ItemTemplate="{StaticResource InfoRowTemplate}" ItemsSource="{x:Bind ViewModel.RequirementRows, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Spacing="4" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasDetection), Mode=OneWay}">
+                                <TextBlock Margin="0,6,0,0" AutomationProperties.HeadingLevel="Level3" Style="{StaticResource BodyStrongTextBlockStyle}" Text="Detection: the app counts as installed when" />
+                                <ItemsControl IsTabStop="False" ItemTemplate="{StaticResource BulletTemplate}" ItemsSource="{x:Bind ViewModel.DetectionList, Mode=OneWay}" />
+                            </StackPanel>
+                            <TextBlock Margin="0,6,0,0" AutomationProperties.HeadingLevel="Level3" Style="{StaticResource BodyStrongTextBlockStyle}" Text="Package" />
+                            <ItemsControl IsTabStop="False" ItemTemplate="{StaticResource InfoRowTemplate}" ItemsSource="{x:Bind ViewModel.PackageRows, Mode=OneWay}" />
+                            <controls:CopyableValue Label="Install command" Value="{x:Bind ViewModel.InstallCommand, Mode=OneWay}" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasInstallCommand), Mode=OneWay}" />
+                            <controls:CopyableValue Label="Uninstall command" Value="{x:Bind ViewModel.UninstallCommand, Mode=OneWay}" Visibility="{x:Bind local:Ui.Visible(ViewModel.HasUninstallCommand), Mode=OneWay}" />
+                        </StackPanel>
+                    </controls:SectionCard>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Page>

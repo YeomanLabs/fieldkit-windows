@@ -23,4 +23,5 @@ public enum GraphFeature
     SignIns,
     AppInstallStatus,
     ConfigurationStatus,
+    AssignmentFilters,
 }

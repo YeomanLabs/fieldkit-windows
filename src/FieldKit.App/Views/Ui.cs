@@ -85,6 +85,9 @@ public static class Ui
             _ => Tone.Normal,
         };
 
+    /// <summary>"Why didn't this install? Contoso VPN 4.2": a link's Narrator name says which app it's about.</summary>
+    public static string WhyLinkName(string appName, string whyText) => $"{whyText} {appName}";
+
     /// <summary>"Publisher · size" under a detected app; anchored on its ID, which is never null.</summary>
     public static string DetectedAppDetail(string id, string publisher, long? sizeBytes) =>
         DeviceInventoryViewModel.AppDetail(new DetectedApp(id, "", "", publisher, sizeBytes));

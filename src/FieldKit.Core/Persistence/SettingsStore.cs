@@ -15,6 +15,7 @@ public sealed partial class SettingsStore : ObservableObject
     private const string LastSiteKey = "lastSite";
     private const string LastAreaKey = "lastArea";
     private const string RecentGroupTagsKey = "recentGroupTags";
+    private const string ThemeKey = "theme";
 
     private readonly ILocalStore _store;
 
@@ -30,7 +31,12 @@ public sealed partial class SettingsStore : ObservableObject
         LastArea = store.GetSetting(LastAreaKey) ?? "";
         // Tags can't contain control characters (GroupTag.Normalized), so a newline separates them safely.
         RecentGroupTags = (store.GetSetting(RecentGroupTagsKey) ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        Theme = Enum.TryParse<AppTheme>(store.GetSetting(ThemeKey), ignoreCase: true, out var theme) && Enum.IsDefined(theme) ? theme : AppTheme.System;
     }
+
+    /// <summary>Follow Windows, or always light or dark.</summary>
+    [ObservableProperty]
+    public partial AppTheme Theme { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AuditSettings))]
@@ -74,7 +80,10 @@ public sealed partial class SettingsStore : ObservableObject
         LastSite = "";
         LastArea = "";
         RecentGroupTags = [];
+        Theme = AppTheme.System;
     }
+
+    partial void OnThemeChanged(AppTheme value) => _store.SetSetting(ThemeKey, value.ToString().ToLowerInvariant());
 
     partial void OnStaleThresholdDaysChanged(int value) =>
         _store.SetSetting(StaleThresholdDaysKey, value.ToString(CultureInfo.InvariantCulture));

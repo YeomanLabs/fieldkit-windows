@@ -45,6 +45,9 @@ public sealed partial class DemoGraphClient : IGraphClient
         if (request.Method == GraphMethod.Get && FleetResponse(path, query) is { } fleet) return fleet;
         // Install status (beta): app intents per device, and Intune's report actions (reads sent as POST).
         if (request.Method == GraphMethod.Get && IntentsRoute().Match(Uri.UnescapeDataString(path)) is { Success: true } intents) return DemoAppIntents(intents.Groups[1].Value);
+        // "Why didn't it install?" (beta): one app with its assignments and relationships, or its Win32 settings.
+        if (request.Method == GraphMethod.Get && path.StartsWith("deviceAppManagement/mobileApps/", StringComparison.Ordinal)) return DemoApp(path, query);
+        if (request.Method == GraphMethod.Get && path == "deviceManagement/assignmentFilters/flt-desktops") return DesktopsFilter;
         if (request.Method == GraphMethod.Post && path.StartsWith("deviceManagement/reports/", StringComparison.Ordinal))
         {
             // The filter as Graph reads it: JSON writers escape the quotes (') in the raw body.
@@ -492,7 +495,10 @@ public sealed partial class DemoGraphClient : IGraphClient
     [GeneratedRegex(@"IntuneDeviceId eq '([^']*)'")]
     private static partial Regex ReportDevice();
 
-    /// <summary>CTS-LT-01234 has a failed VPN and a pending Teams; DESKTOP-7Q2LMNP a failed VPN too; the rest are clean.</summary>
+    /// <summary>
+    /// CTS-LT-01234 has a failed VPN (installed but not detected) and a pending Teams; DESKTOP-7Q2LMNP a
+    /// failed VPN too (1603). Field Tools is ARM64 only, so it doesn't apply anywhere; the rest are clean.
+    /// </summary>
     private static string DemoAppIntents(string deviceId)
     {
         static string App(string id, string name, string intent, string version, string state) =>
@@ -505,11 +511,90 @@ public sealed partial class DemoGraphClient : IGraphClient
             App("app-m365", "Microsoft 365 Apps for Windows 10 and later", "requiredInstall", "", "installed"),
             App("app-vpn", "Contoso VPN 4.2", "requiredInstall", "4.2.0", vpn),
             App("app-teams", "Microsoft Teams", "requiredInstall", "26225.1806", teams),
+            App("app-fieldtools", "Contoso Field Tools 2.1", "requiredInstall", "2.1.0", "notApplicable"),
             App("app-oldvpn", "Old VPN client", "requiredUninstall", "", "notInstalled"),
             App("app-7zip", "7-Zip 25.01", "available", "25.01", "installed"),
             App("app-reader", "Adobe Acrobat Reader", "available", "", "unknown"),
         ];
         return $$"""{"id":"u-demo","managedDeviceIdentifier":"{{deviceId}}","userId":"u-demo","mobileAppList":[{{string.Join(",", apps)}}]}""";
+    }
+
+    private const string DesktopsFilter =
+        """{"id":"flt-desktops","displayName":"Contoso desktops","rule":"(device.model -startsWith \"ThinkCentre\")","platform":"windows10AndLater"}""";
+
+    private const string StandardReturnCodes =
+        """[{"returnCode":0,"type":"success"},{"returnCode":1707,"type":"success"},{"returnCode":3010,"type":"softReboot"},{"returnCode":1641,"type":"hardReboot"},{"returnCode":1618,"type":"retry"}]""";
+
+    /// <summary>An app assignment as beta returns it, with the filter fields.</summary>
+    private static string AppTarget(string kind, string? group, string intent, string? filter = null, string filterType = "none")
+    {
+        var odataType = kind switch
+        {
+            "allDevices" => "allDevicesAssignmentTarget",
+            "allUsers" => "allLicensedUsersAssignmentTarget",
+            "exclusion" => "exclusionGroupAssignmentTarget",
+            _ => "groupAssignmentTarget",
+        };
+        var groupField = group is null ? "" : $",\"groupId\":\"{group}\"";
+        var filterId = filter is null ? "null" : $"\"{filter}\"";
+        return $$"""{"id":"{{group ?? kind}}_{{intent}}","intent":"{{intent}}","source":"direct","target":{"@odata.type":"#microsoft.graph.{{odataType}}","deviceAndAppManagementAssignmentFilterId":{{filterId}},"deviceAndAppManagementAssignmentFilterType":"{{filterType}}"{{groupField}}""" + "}}";
+    }
+
+    /// <summary>The demo apps' Intune settings, for "Why didn't it install?".</summary>
+    private static string DemoApp(string path, string query)
+    {
+        var id = path["deviceAppManagement/mobileApps/".Length..];
+        (string Type, string Name, string Publisher, string[] Assignments, string Relationships, string? Win32) app = id switch
+        {
+            "app-portal" => ("winGetApp", "Company Portal", "Microsoft Corporation", [AppTarget("allUsers", null, "required")], "", null),
+            "app-m365" => ("officeSuiteApp", "Microsoft 365 Apps for Windows 10 and later", "Microsoft", [AppTarget("allDevices", null, "required")], "", null),
+            "app-vpn" => ("win32LobApp", "Contoso VPN 4.2", "Contoso IT",
+                [AppTarget("group", "g-laptops", "required"), AppTarget("allDevices", null, "required", "flt-desktops", "include")], "",
+                $$"""
+                "displayVersion":"4.2.0","allowedArchitectures":"x64,arm64","applicableArchitectures":"none","minimumSupportedWindowsRelease":"Windows11_23H2",
+                "minimumFreeDiskSpaceInMB":500,"minimumMemoryInMB":null,"minimumNumberOfProcessors":null,"minimumCpuSpeedInMHz":null,
+                "rules":[{"@odata.type":"#microsoft.graph.win32LobAppFileSystemRule","ruleType":"detection","path":"C:\\Program Files\\Contoso\\VPN","fileOrFolderName":"vpnclient.exe","check32BitOn64System":false,"operationType":"version","operator":"greaterThanOrEqual","comparisonValue":"4.2.0"}],
+                "returnCodes":{{StandardReturnCodes}},"installExperience":{"runAsAccount":"system","maxRunTimeInMinutes":60,"deviceRestartBehavior":"basedOnReturnCode"},
+                "installCommandLine":"msiexec /i \"ContosoVPN-4.2.0.msi\" /qn","uninstallCommandLine":"msiexec /x \"{6F0A7B52-3C1D-4E8F-9A2B-5C7D8E9F0A1B}\" /qn","setupFilePath":"ContosoVPN-4.2.0.msi"
+                """),
+            "app-teams" => ("win32LobApp", "Microsoft Teams", "Microsoft Corporation", [AppTarget("allUsers", null, "required")],
+                """{"@odata.type":"#microsoft.graph.mobileAppDependency","targetId":"app-webview2","targetDisplayName":"Microsoft Edge WebView2 Runtime","targetDisplayVersion":"141.0","targetType":"child","dependencyType":"autoInstall"}""",
+                $$"""
+                "displayVersion":"26225.1806","allowedArchitectures":"x64,arm64","applicableArchitectures":"none","minimumSupportedWindowsRelease":"1607","minimumFreeDiskSpaceInMB":1024,
+                "rules":[{"@odata.type":"#microsoft.graph.win32LobAppPowerShellScriptRule","ruleType":"detection","enforceSignatureCheck":false,"runAs32Bit":false,"operationType":"notConfigured","operator":"notConfigured","comparisonValue":null}],
+                "returnCodes":{{StandardReturnCodes}},"installExperience":{"runAsAccount":"system"},
+                "installCommandLine":"teamsbootstrapper.exe -p","uninstallCommandLine":"teamsbootstrapper.exe -x","setupFilePath":"teamsbootstrapper.exe"
+                """),
+            "app-fieldtools" => ("win32LobApp", "Contoso Field Tools 2.1", "Contoso IT", [AppTarget("group", "g-laptops", "required")], "",
+                $$"""
+                "displayVersion":"2.1.0","allowedArchitectures":"arm64","applicableArchitectures":"none","minimumSupportedWindowsRelease":"Windows11_24H2","minimumFreeDiskSpaceInMB":200,
+                "rules":[
+                 {"@odata.type":"#microsoft.graph.win32LobAppFileSystemRule","ruleType":"requirement","path":"C:\\ProgramData\\Contoso","fileOrFolderName":"field-device.tag","check32BitOn64System":false,"operationType":"exists","operator":"notConfigured","comparisonValue":null},
+                 {"@odata.type":"#microsoft.graph.win32LobAppRegistryRule","ruleType":"detection","keyPath":"HKEY_LOCAL_MACHINE\\SOFTWARE\\Contoso\\FieldTools","valueName":"Version","check32BitOn64System":false,"operationType":"version","operator":"greaterThanOrEqual","comparisonValue":"2.1.0"}],
+                "returnCodes":{{StandardReturnCodes}},"installExperience":{"runAsAccount":"system"},
+                "installCommandLine":"FieldToolsSetup.exe /S","uninstallCommandLine":"FieldToolsSetup.exe /uninstall /S","setupFilePath":"FieldToolsSetup.exe"
+                """),
+            "app-oldvpn" => ("win32LobApp", "Old VPN client", "Contoso IT", [AppTarget("group", "g-finance", "uninstall")], "",
+                """
+                "displayVersion":"3.9.2","allowedArchitectures":"x64","applicableArchitectures":"none","minimumSupportedWindowsRelease":"1607",
+                "rules":[{"@odata.type":"#microsoft.graph.win32LobAppProductCodeRule","ruleType":"detection","productCode":"{2B1C0D9E-8F7A-4B6C-5D4E-3F2A1B0C9D8E}","productVersionOperator":"notConfigured","productVersion":null}],
+                "installExperience":{"runAsAccount":"system"},"installCommandLine":"msiexec /i \"OldVPN.msi\" /qn","uninstallCommandLine":"msiexec /x \"{2B1C0D9E-8F7A-4B6C-5D4E-3F2A1B0C9D8E}\" /qn","setupFilePath":"OldVPN.msi"
+                """),
+            "app-7zip" => ("winGetApp", "7-Zip 25.01", "Igor Pavlov", [AppTarget("group", "g-laptops", "available")], "", null),
+            "app-reader" => ("win32LobApp", "Adobe Acrobat Reader", "Adobe", [AppTarget("group", "g-finance", "available")], "",
+                """
+                "displayVersion":"25.001.20756","allowedArchitectures":"x64","applicableArchitectures":"none","minimumSupportedWindowsRelease":"1607",
+                "rules":[{"@odata.type":"#microsoft.graph.win32LobAppRegistryRule","ruleType":"detection","keyPath":"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{AC76BA86-1033-1033-7760-BC15014EA700}","valueName":"","check32BitOn64System":false,"operationType":"exists","operator":"notConfigured","comparisonValue":null}],
+                "installExperience":{"runAsAccount":"system"},"installCommandLine":"setup.exe /sAll /rs","uninstallCommandLine":"msiexec /x {AC76BA86-1033-1033-7760-BC15014EA700} /qn","setupFilePath":"setup.exe"
+                """),
+            _ => throw GraphException.NotFound(),
+        };
+        // The second read names Win32 fields; Graph refuses that for any other type.
+        if (query.Contains("microsoft.graph.win32LobApp/", StringComparison.Ordinal))
+        {
+            return app.Win32 is { } win32 ? $$"""{"@odata.type":"#microsoft.graph.win32LobApp","id":"{{id}}",{{win32}}}""" : throw GraphException.Decoding("not a Win32 app");
+        }
+        return $$"""{"@odata.type":"#microsoft.graph.{{app.Type}}","id":"{{id}}","displayName":"{{app.Name}}","publisher":"{{app.Publisher}}","assignments":[{{string.Join(",", app.Assignments)}}],"relationships":[{{app.Relationships}}]}""";
     }
 
     private static string DemoReport(string path, string body)

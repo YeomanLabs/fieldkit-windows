@@ -114,6 +114,25 @@ internal sealed class MsalAuthProvider : IAuthProvider
     public async Task<IReadOnlyList<string>> GrantedScopesAsync(bool forceRefresh, CancellationToken cancellationToken = default) =>
         (await SilentForCurrentAccount(forceRefresh, cancellationToken)).Scopes.ToList();
 
+    public async Task<IReadOnlyList<string>> GrantedScopesInteractiveAsync(CancellationToken cancellationToken = default)
+    {
+        if (_application is null) throw new AuthException(AuthErrorKind.NotConfigured);
+        try
+        {
+            var request = _application.AcquireTokenInteractive(AuthScopes.Graph);
+            // The signed-in account, so Windows only asks for what it needs (consent, MFA); no
+            // account cached (a Windows-account sign-in) means picking one.
+            request = await CurrentAccountAsync() is { } account ? request.WithAccount(account) : request.WithPrompt(Prompt.SelectAccount);
+            var result = await request.ExecuteAsync(cancellationToken);
+            _store.RemoveSetting(SignedOutKey);
+            return result.Scopes.ToList();
+        }
+        catch (Exception error) when (error is not OperationCanceledException)
+        {
+            throw Map(error);
+        }
+    }
+
     private async Task<AuthenticationResult> SilentForCurrentAccount(bool forceRefresh, CancellationToken cancellationToken)
     {
         if (_application is null) throw new AuthException(AuthErrorKind.NotConfigured);

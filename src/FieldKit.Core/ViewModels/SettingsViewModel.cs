@@ -48,6 +48,18 @@ public sealed partial class SettingsViewModel : ObservableObject
         }
     }
 
+    /// <summary>For the Appearance radio buttons: 0 Windows setting, 1 Light, 2 Dark.</summary>
+    public int ThemeIndex
+    {
+        get => (int)Settings.Theme;
+        set
+        {
+            if (value is < 0 or > 2 || value == (int)Settings.Theme) return;
+            Settings.Theme = (AppTheme)value;
+            OnPropertyChanged();
+        }
+    }
+
     public string? RegexProblem =>
         Settings.NamingConventionIsValid ? null : "Invalid regex: the naming check is off until it's fixed.";
 

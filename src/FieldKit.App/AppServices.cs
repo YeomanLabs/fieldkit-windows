@@ -26,6 +26,9 @@ internal sealed class AppServices
     /// <summary>Windows Hello before restart, retire, remediations and secrets.</summary>
     public required IOwnerVerifier OwnerVerifier { get; init; }
 
+    /// <summary>Reads Intune Management Extension logs from a diagnostics zip or log files the engineer opens.</summary>
+    public required IDeviceLogReader DeviceLogs { get; init; }
+
     /// <summary>Copies secrets out of clipboard history and clears them after 60 seconds.</summary>
     public required Platform.SecureClipboard Clipboard { get; init; }
 }

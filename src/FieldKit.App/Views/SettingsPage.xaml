@@ -89,6 +89,18 @@
                 </StackPanel>
             </Border>
 
+            <!-- Appearance -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock AutomationProperties.HeadingLevel="Level2" Style="{StaticResource CardHeaderStyle}" Text="Appearance" />
+                    <RadioButtons AutomationProperties.Name="Theme" SelectedIndex="{x:Bind ViewModel.ThemeIndex, Mode=TwoWay}">
+                        <x:String>Use my Windows setting</x:String>
+                        <x:String>Light</x:String>
+                        <x:String>Dark</x:String>
+                    </RadioButtons>
+                </StackPanel>
+            </Border>
+
             <!-- Audit rules -->
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="12">

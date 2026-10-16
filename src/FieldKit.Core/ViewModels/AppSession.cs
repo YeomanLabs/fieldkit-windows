@@ -88,6 +88,8 @@ public sealed partial class AppSession : ObservableObject
 
     public InstallStatusLookup InstallStatus => new(_graph);
 
+    public AppInstallLookup AppInstall => new(_graph);
+
     public GroupMembershipUpdates GroupMembershipUpdates => new(_graph);
 
     public DeviceInventoryLookup InventoryLookup => new(_graph);

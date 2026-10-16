@@ -1,0 +1,1 @@
+{"@odata.context":"https://graph.microsoft.com/beta/$metadata#deviceManagement/assignmentFilters(id,displayName,rule,platform)/$entity","id":"flt-desktops","displayName":"Contoso desktops","rule":"(device.model -startsWith \"ThinkCentre\")","platform":"windows10AndLater"}

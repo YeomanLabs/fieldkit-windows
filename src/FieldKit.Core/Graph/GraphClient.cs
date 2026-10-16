@@ -46,6 +46,9 @@ public sealed class GraphClient : IGraphClient
 
         var refreshedToken = false;
         var throttleRetries = 0;
+        // Set when the refresh is only a second try after a 403 (a permission granted since sign-in).
+        var forbidden = false;
+        string? forbiddenCode = null;
 
         while (true)
         {
@@ -56,7 +59,11 @@ public sealed class GraphClient : IGraphClient
             }
             catch (AuthException error)
             {
-                throw error.Kind == AuthErrorKind.Network ? GraphException.Network() : GraphException.Unauthorized();
+                if (error.Kind == AuthErrorKind.Network) throw GraphException.Network();
+                // After a 403 the token was fine; Windows just can't refresh it without the user
+                // (a permission newly added to the app registration, MFA). Report the 403 rather
+                // than signing out (reported on 1.5.0-test.3).
+                throw forbidden ? GraphException.Forbidden(forbiddenCode) : GraphException.Unauthorized();
             }
 
             using var message = BuildMessage(request, token);
@@ -93,6 +100,8 @@ public sealed class GraphClient : IGraphClient
                 // issued, so one refresh is tried before reporting either.
                 case 401 or 403 when !refreshedToken:
                     refreshedToken = true;
+                    forbidden = status == 403;
+                    forbiddenCode = forbidden ? ErrorCode(data) : null;
                     break;
                 case 401:
                     throw GraphException.Unauthorized();

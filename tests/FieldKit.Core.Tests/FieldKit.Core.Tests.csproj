@@ -34,6 +34,8 @@
   -->
   <ItemGroup>
     <None Update="Fixtures\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Intune Management Extension logs, in the extension's own format, with made-up app IDs. -->
+    <None Update="Fixtures\*.log" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
