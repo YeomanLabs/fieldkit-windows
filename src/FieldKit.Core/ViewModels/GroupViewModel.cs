@@ -57,7 +57,9 @@ public sealed partial class GroupViewModel : ObservableObject
     private async Task LoadSectionAsync(AssignmentKindSection section, bool refresh, CancellationToken cancellationToken)
     {
         section.State = SectionState<IReadOnlyList<ResolvedAssignment>>.Loading;
+        section.Note = "";
         if (await CatalogLoader.LoadAsync(section.Kind, _catalog, refresh, _onUnauthorized, cancellationToken) is not { } catalog) return;
+        section.Note = catalog.Kind == SectionKind.Loaded ? AssignmentKindSection.UnreadNote(catalog.Value!) : "";
         section.State = AssignmentKindSection.Unresolved(catalog)
             ?? AssignmentKindSection.FromResolved(AssignmentResolver.Targeting(Group.Id, Group.DisplayName, catalog.Value!));
     }

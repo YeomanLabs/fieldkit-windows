@@ -22,6 +22,7 @@ namespace FieldKit.Core.Graph;
 [JsonSerializable(typeof(GraphCollection<DirectoryObjectDto>))]
 [JsonSerializable(typeof(DirectoryObjectDto))]
 [JsonSerializable(typeof(GraphCollection<AssignableObjectDto>))]
+[JsonSerializable(typeof(GraphCollection<AssignmentDto>))]
 [JsonSerializable(typeof(DeviceLocalCredentialInfoDto))]
 [JsonSerializable(typeof(GraphCollection<BitLockerRecoveryKeyDto>))]
 [JsonSerializable(typeof(BitLockerRecoveryKeyDto))]

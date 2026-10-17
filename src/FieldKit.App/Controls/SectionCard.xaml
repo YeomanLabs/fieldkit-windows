@@ -19,6 +19,26 @@
 
             <TextBlock x:Name="MessageText" Style="{StaticResource SecondaryTextStyle}" Visibility="Collapsed" />
 
+            <Grid x:Name="NotePanel" ColumnSpacing="10" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <FontIcon
+                    Margin="0,2,0,0"
+                    VerticalAlignment="Top"
+                    AutomationProperties.AccessibilityView="Raw"
+                    FontSize="14"
+                    Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                    Glyph="&#xE7BA;" />
+                <TextBlock
+                    x:Name="NoteText"
+                    Grid.Column="1"
+                    IsTextSelectionEnabled="True"
+                    Style="{StaticResource SecondaryTextStyle}"
+                    TextWrapping="Wrap" />
+            </Grid>
+
             <StackPanel x:Name="FailedPanel" Spacing="10" Visibility="Collapsed">
                 <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions>
@@ -32,7 +52,8 @@
                         FontSize="16"
                         Foreground="{ThemeResource SystemFillColorCautionBrush}"
                         Glyph="&#xE7BA;" />
-                    <TextBlock x:Name="FailedText" Grid.Column="1" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" />
+                    <!-- Selectable, so a request ID in a Graph error can be copied for Microsoft. -->
+                    <TextBlock x:Name="FailedText" Grid.Column="1" IsTextSelectionEnabled="True" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" />
                 </Grid>
                 <Button x:Name="RetryButton" Click="Retry_Click" Content="Retry" />
             </StackPanel>

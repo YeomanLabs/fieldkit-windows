@@ -136,6 +136,7 @@ public sealed partial class AssignmentsViewModel : ObservableObject
         foreach (var section in Sections)
         {
             var catalog = _catalogStates[section.Kind];
+            section.Note = catalog.Kind == SectionKind.Loaded ? AssignmentKindSection.UnreadNote(catalog.Value!) : "";
             section.State = AssignmentKindSection.Unresolved(catalog)
                 ?? (groupsLoading
                     ? SectionState<IReadOnlyList<ResolvedAssignment>>.Loading

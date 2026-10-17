@@ -120,7 +120,7 @@ public sealed class GraphClient : IGraphClient
                 default:
                     var code = ErrorCode(data);
                     Debug.WriteLine($"Graph error {status} {code ?? "-"}");
-                    throw GraphException.Server(status, code);
+                    throw GraphException.Server(status, code, requestId == "none" ? null : requestId);
             }
         }
     }

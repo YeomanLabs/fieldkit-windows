@@ -42,16 +42,16 @@ Everything FieldKit needs (.NET and the Windows App SDK) is included.
 FieldKit isn't code-signed yet, so the first time you run a downloaded copy Windows SmartScreen may say it "protected your PC". Select **More info → Run anyway**. You can check a download against `SHA256SUMS.txt` in the release:
 
 ```powershell
-Get-FileHash .\FieldKit-1.5.0-x64.msi -Algorithm SHA256
+Get-FileHash .\FieldKit-1.5.1-x64.msi -Algorithm SHA256
 ```
 
 ### Deploy with Intune
 
 Add the MSI as a **Line-of-business app**, or wrap it as a **Win32 app** with:
 
-- Install: `msiexec /i FieldKit-1.5.0-x64.msi /qn`
-- Uninstall: `msiexec /x FieldKit-1.5.0-x64.msi /qn` (or by product code)
-- Detection: MSI product code, or the file `%ProgramFiles%\FieldKit\FieldKit.exe` at version 1.5.0 or later.
+- Install: `msiexec /i FieldKit-1.5.1-x64.msi /qn`
+- Uninstall: `msiexec /x FieldKit-1.5.1-x64.msi /qn` (or by product code)
+- Detection: MSI product code, or the file `%ProgramFiles%\FieldKit\FieldKit.exe` at version 1.5.1 or later.
 
 New versions upgrade in place. If FieldKit is open, the installer closes it first (from 1.4.3), so an upgrade doesn't wait on a running copy.
 

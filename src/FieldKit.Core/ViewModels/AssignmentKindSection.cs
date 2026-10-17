@@ -26,6 +26,27 @@ public sealed partial class AssignmentKindSection : ObservableObject
 
     public IReadOnlyList<ResolvedAssignment> Items => State.Kind == SectionKind.Loaded ? State.Value! : [];
 
+    /// <summary>Which items may be missing because Graph wouldn't give their assignments (<see cref="UnreadNote"/>); empty for none.</summary>
+    [ObservableProperty]
+    public partial string Note { get; set; } = "";
+
+    /// <summary>The most items <see cref="UnreadNote"/> names before saying how many more.</summary>
+    public const int MaxNamesInNote = 5;
+
+    /// <summary>
+    /// "Couldn't read the assignments of Old VPN fix, so it may be missing here." The kind loaded, but
+    /// these items' assignments are unknown, so whether they apply can't be said either way.
+    /// </summary>
+    internal static string UnreadNote(IReadOnlyList<AssignedItem> catalog)
+    {
+        var unread = catalog.Where(item => item.AssignmentsUnread).Select(item => item.Name).Order(StringComparer.CurrentCultureIgnoreCase).ToList();
+        if (unread.Count == 0) return "";
+        var names = unread.Count <= MaxNamesInNote
+            ? string.Join(", ", unread)
+            : $"{string.Join(", ", unread.Take(MaxNamesInNote))} and {unread.Count - MaxNamesInNote} more";
+        return $"Graph wouldn't give the assignments of {names}, so {(unread.Count == 1 ? "it" : "they")} may be missing here.";
+    }
+
     /// <summary>The page's refresh, which refetches the catalog (as iOS's retry does).</summary>
     public System.Windows.Input.ICommand? RetryCommand { get; internal set; }
 

@@ -67,6 +67,7 @@
                 <DataTemplate x:DataType="vm:AssignmentKindSection">
                     <controls:SectionCard
                         Header="{x:Bind Title}"
+                        Note="{x:Bind Note, Mode=OneWay}"
                         NotFoundText="{x:Bind NotFoundText}"
                         RetryCommand="{x:Bind RetryCommand}"
                         State="{x:Bind State, Mode=OneWay}">

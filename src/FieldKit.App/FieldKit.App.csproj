@@ -22,7 +22,7 @@
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <!-- Still needed unpackaged: it builds FieldKit.pri and puts it and the compiled XAML (.xbf) in publish output. -->
     <EnableMsixTooling>true</EnableMsixTooling>
-    <Version>1.5.0</Version>
+    <Version>1.5.1</Version>
     <!-- English only: leaves out other languages' satellite assemblies from MSAL and the SDKs. -->
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>

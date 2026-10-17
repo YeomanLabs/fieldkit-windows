@@ -29,6 +29,9 @@ public sealed partial class SectionCard : UserControl
     public static readonly DependencyProperty CardContentProperty = DependencyProperty.Register(
         nameof(CardContent), typeof(object), typeof(SectionCard), new PropertyMetadata(null));
 
+    public static readonly DependencyProperty NoteProperty = DependencyProperty.Register(
+        nameof(Note), typeof(string), typeof(SectionCard), new PropertyMetadata("", (d, _) => ((SectionCard)d).Update()));
+
     public SectionCard()
     {
         InitializeComponent();
@@ -66,6 +69,16 @@ public sealed partial class SectionCard : UserControl
         set => SetValue(CardContentProperty, value);
     }
 
+    /// <summary>
+    /// A caution under the header once the section has loaded, found something or not, e.g. which
+    /// items it had to leave out. Empty for none.
+    /// </summary>
+    public string Note
+    {
+        get => (string)GetValue(NoteProperty);
+        set => SetValue(NoteProperty, value ?? "");
+    }
+
     private void Update()
     {
         var kind = State?.Kind ?? SectionKind.Loading;
@@ -82,6 +95,9 @@ public sealed partial class SectionCard : UserControl
         MessageText.Text = message;
         MessageText.Visibility = Show(message.Length > 0);
         FailedText.Text = kind == SectionKind.Failed ? State?.Message ?? "" : "";
+        var note = kind is SectionKind.Loaded or SectionKind.NotFound ? Note ?? "" : "";
+        NoteText.Text = note;
+        NotePanel.Visibility = Show(note.Length > 0);
         AutomationProperties.SetName(RetryButton, $"Retry {Header}");
     }
 

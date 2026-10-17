@@ -16,6 +16,12 @@ public sealed record AssignedItem
 
     public IReadOnlyList<AssignmentEntry> Assignments { get; init; } = [];
 
+    /// <summary>
+    /// Graph wouldn't give this item's assignments, even on their own (see <c>AssignmentCatalog</c>),
+    /// so <see cref="Assignments"/> is empty because it's unknown, not because nothing is assigned.
+    /// </summary>
+    public bool AssignmentsUnread { get; init; }
+
     /// <summary>Graph's type without the namespace, e.g. "win32LobApp". Empty when unknown.</summary>
     public string TypeName { get; init; } = "";
 

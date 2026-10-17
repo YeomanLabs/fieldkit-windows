@@ -3,13 +3,14 @@ namespace FieldKit.Core.Graph;
 /// <summary>A failed Graph call (ports <c>GraphError.swift</c>). The message is safe to show and log.</summary>
 public sealed class GraphException : Exception
 {
-    private GraphException(GraphErrorKind kind, int? status = null, string? code = null, string? detail = null)
-        : base(UserMessageFor(kind, status, code, detail))
+    private GraphException(GraphErrorKind kind, int? status = null, string? code = null, string? detail = null, string? requestId = null)
+        : base(UserMessageFor(kind, status, code, detail, requestId))
     {
         Kind = kind;
         Status = status;
         Code = code;
         Detail = detail;
+        RequestId = requestId;
     }
 
     public GraphErrorKind Kind { get; }
@@ -22,6 +23,9 @@ public sealed class GraphException : Exception
 
     /// <summary>What couldn't be read, for <see cref="GraphErrorKind.Decoding"/>.</summary>
     public string? Detail { get; }
+
+    /// <summary>Graph's <c>request-id</c> for a server error, so Microsoft can trace it. Not compared by <see cref="Matches"/>.</summary>
+    public string? RequestId { get; }
 
     public string UserMessage => Message;
 
@@ -36,7 +40,7 @@ public sealed class GraphException : Exception
 
     public static GraphException Network() => new(GraphErrorKind.Network);
 
-    public static GraphException Server(int status, string? code) => new(GraphErrorKind.Server, status, code);
+    public static GraphException Server(int status, string? code, string? requestId = null) => new(GraphErrorKind.Server, status, code, requestId: requestId);
 
     public static GraphException Decoding(string detail) => new(GraphErrorKind.Decoding, detail: detail);
 
@@ -50,7 +54,7 @@ public sealed class GraphException : Exception
     public bool Matches(GraphException other) =>
         Kind == other.Kind && Status == other.Status && Code == other.Code && Detail == other.Detail;
 
-    private static string UserMessageFor(GraphErrorKind kind, int? status, string? code, string? detail) =>
+    private static string UserMessageFor(GraphErrorKind kind, int? status, string? code, string? detail, string? requestId) =>
         kind switch
         {
             GraphErrorKind.Unauthorized => "Your sign-in expired. Sign in again.",
@@ -58,7 +62,9 @@ public sealed class GraphException : Exception
             GraphErrorKind.NotFound => "Not found.",
             GraphErrorKind.Throttled => "Graph is throttling requests. Wait a minute and retry.",
             GraphErrorKind.Network => "Couldn't reach Microsoft Graph. Check your connection and retry.",
-            GraphErrorKind.Server when status >= 500 => "Microsoft Graph had a problem. Retry in a moment.",
+            // The status and request ID let a failure seen in someone else's tenant be traced (2026-10-16).
+            GraphErrorKind.Server when status >= 500 =>
+                $"Microsoft Graph had a problem (HTTP {status}{(requestId is null ? "" : $", request ID {requestId}")}). Retry in a moment.",
             GraphErrorKind.Server => $"Graph rejected the request{(code is null ? "" : $" ({code})")}.",
             _ => $"Graph returned data FieldKit couldn't read ({detail}).",
         };
